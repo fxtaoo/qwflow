@@ -1,0 +1,23 @@
+{
+    "mysql": {
+        "conf": {
+            "ip": "",
+            "port": "",
+            "db": "",
+            "user": "",
+            "passwd": ""
+        }
+    },
+    "qiniu": {
+        "key": {
+            "accesskey": "",
+            "secretkey": ""
+        }
+    },
+    "wangsu": {
+        "key": {
+            "accesskey": "",
+            "secretkey": ""
+        }
+    }
+}

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="utf-8">
+    <title>七牛网宿 cdn 流量</title>
+    <link rel="stylesheet" href="template/style.css">
+    <script src="template/echarts.min.js"></script>
+    <script src="template/main.js"></script>
+
+</head>
+
+<body>
+    <a href="live">直播流量</a>
+    <!-- 七牛 -->
+    <div class="line-stack" id="qiniu-line-stack"></div>
+    <div class="pie" id="qiniu-pie"></div>
+
+    <!-- 网宿 -->
+    <div class="line-stack" id="wangsu-line-stack"></div>
+    <div class="pie" id="wangsu-pie"></div> -->
+</body>
+
+<script>
+    // 七牛
+    let qiniulineStack = JSON.parse("{{ json .QiniuCdnLineStack }}")
+    lineStack(qiniulineStack, 'qiniu-line-stack', "七牛 7 天带宽（单元：Kbps）")
+
+    let qiniuPie = JSON.parse("{{ json .QiniuCdnPie }}")
+    pie(qiniuPie, "qiniu-pie", "七牛 7 天流量（单元：GB）")
+
+    // 网宿
+    let wangsulineStack = JSON.parse("{{ json .WangsuCdnLineStack }}")
+    lineStack(wangsulineStack, 'wangsu-line-stack', "网宿 3 天带宽（单元：Kbps）")
+
+    let wangsuPie = JSON.parse("{{ json .WangsuCdnPie }}")
+    pie(wangsuPie, "wangsu-pie", "网宿 3 天流量（单元：GB）")
+</script>
+
+</html>
