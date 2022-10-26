@@ -147,6 +147,13 @@ func (l *LineStackFlows) ConvertLineStack() *LineStack {
 	return lineStack
 }
 
+// Flows[] Name 添加前缀
+func (p *Pie) SeriesNamePrefix(pstr string) {
+	for i := range p.Series {
+		p.Series[i].Name = pstr + "-" + p.Series[i].Name
+	}
+}
+
 // 从数据库读数据
 // 注意有表有固定的结构
 func (p *Pie) Read(m mysql.Mysql) error {

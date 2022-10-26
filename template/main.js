@@ -16,10 +16,13 @@ function lineStack(v, divId, chartName) {
             text: chartName
         },
         tooltip: {
-            trigger: 'axis'
+            trigger: 'axis',
+            confine: true
         },
         legend: {
-            data: v.legend
+            data: v.legend,
+            show: true,
+            top: "3%"
         },
         grid: {
             left: '3%',

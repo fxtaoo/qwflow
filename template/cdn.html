@@ -11,7 +11,34 @@
 </head>
 
 <body>
-    <a href="live">直播流量</a>
+    <a href="live" style="font-size: 1.2rem">直播流量</a>
+    <br>
+    <br>
+    查询流量带宽
+    <a href="/cdn?day=7">一周</a>
+    <a href="/cdn?month=1">一月</a>
+    <a href="/cdn?month=3">三个月</a>
+    <br>
+    <br>
+    自定义日期
+    <form action="/cdn">
+        <label>
+            开始
+            <input type="date" name="begen" />
+        </label>
+        <label>
+            结束
+            <input type="date" name="end" />
+        </label>
+        <button>查询</button>
+    </form>
+    <br>
+    <br>
+
+    <!-- 汇总 -->
+    <div class="line-stack" id="qiniu-wangsu-line-stack"></div>
+    <div class="pie" id="qiniu-wangsu-pie"></div>
+
     <!-- 七牛 -->
     <div class="line-stack" id="qiniu-line-stack"></div>
     <div class="pie" id="qiniu-pie"></div>
@@ -22,19 +49,27 @@
 </body>
 
 <script>
+    // 汇总
+    let qiniuWangsulineStack = JSON.parse("{{ json .QiniuWangsuCdnLineStack }}")
+    lineStack(qiniuWangsulineStack, 'qiniu-wangsu-line-stack', "汇总 {{ .Name }} 带宽（单元：Mbps）")
+
+    let qiniuWangsuPie = JSON.parse("{{ json .QiniuWangsuCdnPie }}")
+    pie(qiniuWangsuPie, "qiniu-wangsu-pie", "汇总 {{ .Name }} 流量（单元：GB）")
+
+
     // 七牛
     let qiniulineStack = JSON.parse("{{ json .QiniuCdnLineStack }}")
-    lineStack(qiniulineStack, 'qiniu-line-stack', "七牛 7 天带宽（单元：Kbps）")
+    lineStack(qiniulineStack, 'qiniu-line-stack', "七牛 {{ .Name }} 带宽（单元：Mbps）")
 
     let qiniuPie = JSON.parse("{{ json .QiniuCdnPie }}")
-    pie(qiniuPie, "qiniu-pie", "七牛 7 天流量（单元：GB）")
+    pie(qiniuPie, "qiniu-pie", "七牛 {{ .Name }} 流量（单元：GB）")
 
     // 网宿
     let wangsulineStack = JSON.parse("{{ json .WangsuCdnLineStack }}")
-    lineStack(wangsulineStack, 'wangsu-line-stack', "网宿 3 天带宽（单元：Kbps）")
+    lineStack(wangsulineStack, 'wangsu-line-stack', "网宿 {{ .Name }} 带宽（单元：Mbps）")
 
     let wangsuPie = JSON.parse("{{ json .WangsuCdnPie }}")
-    pie(wangsuPie, "wangsu-pie", "网宿 3 天流量（单元：GB）")
+    pie(wangsuPie, "wangsu-pie", "网宿 {{ .Name }} 流量（单元：GB）")
 </script>
 
 </html>

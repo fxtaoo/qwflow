@@ -118,7 +118,7 @@ func (d *DateChannelPeak) DataChannelPeak(w *WangSu, accetype string) error {
 
 // CDN 相关流量可直接用 DataChannelPeak
 // 直播相关流量需要聚合几个域名同一时刻，最大带宽和，需要不同的接口
-func (d *DateChannelPeak) LiveDataChannelPeak(w *WangSu) error {
+func (d *DateChannelPeak) LiveDataChannelPeak(w *WangSu, m *mysql.Mysql) error {
 
 	// 讲同属一业务的域名聚合
 	tmpD := DateChannelPeak{
@@ -132,6 +132,8 @@ func (d *DateChannelPeak) LiveDataChannelPeak(w *WangSu) error {
 
 	for i := range tmpD.ChannelPeakSlice {
 		name := tmpD.ChannelPeakSlice[i].Channel
+		// 只保留主域名
+		// 同一业务相同主域名，多个不通二级推拉流域名
 		name = name[strings.Index(name, ".")+1:]
 
 		if _, ok := livesData[name]; !ok {
@@ -141,7 +143,6 @@ func (d *DateChannelPeak) LiveDataChannelPeak(w *WangSu) error {
 		livesData[name].Domains = append(livesData[name].Domains, tmpD.ChannelPeakSlice[i].Channel)
 	}
 
-	d.ChannelPeakSlice = d.ChannelPeakSlice[:0]
 	dayNum := d.End.Sub(d.Begin).Hours() / 24
 	for i := 0; i < int(dayNum); i++ {
 		date := d.Begin.AddDate(0, 0, i)
@@ -155,9 +156,13 @@ func (d *DateChannelPeak) LiveDataChannelPeak(w *WangSu) error {
 				TotalFlow: v.TotalFlow,
 				PeakValue: v.PeakValue,
 			})
+			// 置零
+			v.TotalFlow = 0
 		}
 	}
 
+	// 存储到数据库
+	d.Save(m, "WangsuLiveFlow")
 	return nil
 
 }
@@ -167,6 +172,7 @@ func (d *DateChannelPeak) LiveDataChannelPeak(w *WangSu) error {
 func (l *LiveData) CalcPeakValue(w *WangSu, name string, date time.Time) error {
 	w.AkskConfig.Uri = "/api/report/bandwidth/multi-domain/real-time/edge"
 
+	// todo 域名是不是有重复
 	domains := []*string{}
 	for i := range l.Domains {
 		domains = append(domains, &l.Domains[i])

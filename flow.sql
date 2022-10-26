@@ -5,7 +5,7 @@
  Target Server Version : 80030
  File Encoding         : 65001
 
- Date: 25/10/2022 14:22:44
+ Date: 25/10/2022 17:54:26
 */
 
 SET NAMES utf8mb4;
@@ -20,10 +20,10 @@ CREATE TABLE `QiniuCdnsFlow`  (
   `domain` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `date` date NOT NULL,
   `bandwidthmax` int NULL DEFAULT NULL,
-  `bytesum` int NULL DEFAULT NULL,
+  `bytesum` bigint NULL DEFAULT NULL,
   PRIMARY KEY (`id`, `domain`, `date`) USING BTREE,
   INDEX `index`(`domain` ASC, `date` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1788 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 8410 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for QiniuHubsFlow
@@ -38,7 +38,7 @@ CREATE TABLE `QiniuHubsFlow`  (
   `updown` json NULL,
   PRIMARY KEY (`id`, `hub`, `date`) USING BTREE,
   INDEX `QiniuHubsFlow`(`hub` ASC, `date` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 6653 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 7031 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for WangsuCdnFlow
