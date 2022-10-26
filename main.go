@@ -1,19 +1,15 @@
 package main
 
 import (
-	"log"
-	"qwflow/conf"
+	"qwflow/timing"
 	"qwflow/web"
 )
 
 func main() {
-	var conf conf.Conf
-	// 初始化数据
-	err := conf.Init()
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer conf.Mysql.DB.Close()
+	// 定时执行，获取处理存储昨天流量
+	go func() {
+		timing.Start()
+	}()
 
-	web.Start(&conf)
+	web.Start()
 }
