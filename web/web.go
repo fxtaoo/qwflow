@@ -273,6 +273,9 @@ func Start() {
 	defer conf.Mysql.DB.Close()
 
 	r := gin.Default()
+
+	r.Use(gin.BasicAuth(conf.Accounts))
+
 	r.SetFuncMap(template.FuncMap{
 		"json": func(s interface{}) string {
 			jsonBytes, err := json.Marshal(s)

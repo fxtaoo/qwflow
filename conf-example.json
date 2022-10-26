@@ -19,5 +19,8 @@
             "accesskey": "",
             "secretkey": ""
         }
+    },
+    "accounts": {
+        "admin": "123456"
     }
 }

@@ -6,12 +6,15 @@ import (
 	"qwflow/mysql"
 	"qwflow/qiniu"
 	"qwflow/wangsu"
+
+	"github.com/gin-gonic/gin"
 )
 
 type Conf struct {
-	Mysql  mysql.Mysql   `json:"mysql"`
-	Qiniu  qiniu.Qiniu   `json:"qiniu"`
-	Wangsu wangsu.WangSu `json:"wangsu"`
+	Mysql    mysql.Mysql   `json:"mysql"`
+	Qiniu    qiniu.Qiniu   `json:"qiniu"`
+	Wangsu   wangsu.WangSu `json:"wangsu"`
+	Accounts gin.Accounts  `json:"accounts"`
 }
 
 func (c *Conf) Init() error {
