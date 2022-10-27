@@ -227,6 +227,7 @@ func (v *WebValue) QWCdnInit(conf *conf.Conf) error {
 }
 
 func (v *WebValue) DateSelect(ctx *gin.Context) {
+	v.Name = "1 月"
 	month := 1
 	if ctx.Query("month") != "" {
 		month, _ = strconv.Atoi(ctx.Query("month"))
@@ -304,5 +305,5 @@ func Start() {
 
 		ctx.HTML(200, "cdn.html", webValue)
 	})
-	r.Run(":8173")
+	r.Run(":8174")
 }
