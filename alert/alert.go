@@ -138,11 +138,13 @@ func (a *Alerts) SendMail() {
 			int(v.Growth*100),
 		)
 	}
-	// 发送邮件
-	mailInfo := mail.Mail{
-		Subject: subject,
-		Body:    content,
-	}
+	if content != "" {
+		// 发送邮件
+		mailInfo := mail.Mail{
+			Subject: subject,
+			Body:    content,
+		}
 
-	mail.SendEmailMP(&a.Stmp, &mailInfo, a.Mail)
+		mail.SendEmailMP(&a.Stmp, &mailInfo, a.Mail)
+	}
 }

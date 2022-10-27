@@ -15,6 +15,9 @@ FROM debian:stable-slim
 
 ENV TZ="Asia/Shanghai"
 
+RUN set -eux; \
+    apt update && apt install -y ca-certificates
+
 WORKDIR /app
 
 COPY --chmod=0755 --from=0 /tmp/qwflow-master/qwflow /app/qwflow
