@@ -1,9 +1,10 @@
-FROM golang:alpine
+FROM golang:bullseye
 
 WORKDIR /tmp/
 
 RUN set -eux; \
-    wget https://codeload.github.com/fxtaoo/qwflow/zip/refs/heads/master -O qwflow.zip \
+    apt update && apt install -y wget unzip \
+    && wget https://codeload.github.com/fxtaoo/qwflow/zip/refs/heads/master -O qwflow.zip \
     && unzip qwflow.zip \
     && cd qwflow-master  \
     && go mod tidy \
