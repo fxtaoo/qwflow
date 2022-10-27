@@ -1,0 +1,10 @@
+version: '3'
+services:
+  qwflow:
+    image: fxtaoo/qwflow:latest
+    container_name: qwflow
+    restart: always
+    ports:
+      - "8174:8174"
+    volumes:
+      - ./conf.json:/app/conf.json
