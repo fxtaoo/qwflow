@@ -3,6 +3,7 @@ package conf
 import (
 	"encoding/json"
 	"os"
+	"qwflow/alert"
 	"qwflow/mysql"
 	"qwflow/qiniu"
 	"qwflow/wangsu"
@@ -15,6 +16,7 @@ type Conf struct {
 	Qiniu    qiniu.Qiniu   `json:"qiniu"`
 	Wangsu   wangsu.WangSu `json:"wangsu"`
 	Accounts gin.Accounts  `json:"accounts"`
+	Alerts   alert.Alerts  `json:"alerts"`
 }
 
 func (c *Conf) Init() error {
@@ -34,6 +36,8 @@ func (c *Conf) Init() error {
 	c.Qiniu.Init()
 	// 网宿初始化
 	c.Wangsu.Init()
+	// 流量日环比增幅超过设定值邮件告警
+	c.Alerts.Init()
 
 	return nil
 }

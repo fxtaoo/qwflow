@@ -16,7 +16,30 @@ func Start() {
 	wg.Add(1)
 
 	c := cron.New()
-	c.AddFunc("0 3 * * *", func() { YesterdayFlow() })
+	c.AddFunc("0 3 * * *", func() {
+		var conf conf.Conf
+		// 初始化数据
+		err := conf.Init()
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer conf.Mysql.DB.Close()
+
+		now := time.Now()
+
+		// 获取昨天七牛网宿相关数据
+		err = YesterdayFlow(&conf, now)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		// 流量日环比增幅超过设定值邮件告警
+		err = conf.Alerts.Calc(&conf.Mysql)
+		if err != nil {
+			log.Fatal(err)
+		}
+		conf.Alerts.SendMail()
+	})
 	c.Start()
 
 	wg.Wait()
@@ -25,16 +48,7 @@ func Start() {
 
 }
 
-func YesterdayFlow() {
-	var conf conf.Conf
-	// 初始化数据
-	err := conf.Init()
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer conf.Mysql.DB.Close()
-
-	end := time.Now()
+func YesterdayFlow(conf *conf.Conf, end time.Time) error {
 	bengin := end.AddDate(0, 0, -1)
 
 	// 七牛直播
@@ -48,9 +62,9 @@ func YesterdayFlow() {
 		Begin: bengin,
 		End:   end,
 	}
-	err = d.LiveDataChannelPeak(&conf.Wangsu, &conf.Mysql)
+	err := d.LiveDataChannelPeak(&conf.Wangsu, &conf.Mysql)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	// 网宿 cdn
@@ -60,8 +74,9 @@ func YesterdayFlow() {
 	}
 	err = d2.DataChannelPeak(&conf.Wangsu, "dl-https;download;live-https;web;web-https")
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	d2.Save(&conf.Mysql, "WangsuCdnFlow")
 
+	return nil
 }
