@@ -12,11 +12,12 @@ import (
 )
 
 type Conf struct {
-	Mysql    mysql.Mysql   `json:"mysql"`
-	Qiniu    qiniu.Qiniu   `json:"qiniu"`
-	Wangsu   wangsu.WangSu `json:"wangsu"`
-	Accounts gin.Accounts  `json:"accounts"`
-	Alerts   alert.Alerts  `json:"alerts"`
+	Mysql      mysql.Mysql   `json:"mysql"`
+	Qiniu      qiniu.Qiniu   `json:"qiniu"`
+	Wangsu     wangsu.WangSu `json:"wangsu"`
+	Accounts   gin.Accounts  `json:"accounts"`
+	Alerts     alert.Alerts  `json:"alerts"`
+	CdnOtherGB int           `json:"cdnOtherGB"`
 }
 
 func (c *Conf) Init() error {

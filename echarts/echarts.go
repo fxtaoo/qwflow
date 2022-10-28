@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"qwflow/mysql"
+	"strings"
 	"time"
 )
 
@@ -60,6 +61,28 @@ func (l *LineStackFlows) SeriesNamePrefix(p string) {
 	for i := range l.Flows {
 		l.Flows[i].Name = p + "-" + l.Flows[i].Name
 	}
+}
+
+// 将较小的聚合成一个其他
+func (l *LineStackFlows) AddOther(otherNames string) {
+	newFlows := make([]Flow, 0)
+	otherFlows := make([]Flow, 0)
+
+	for _, v := range l.Flows {
+		if strings.Contains(otherNames, v.Name) {
+			otherFlows = append(otherFlows, v)
+		} else {
+			newFlows = append(newFlows, v)
+		}
+	}
+
+	l.Flows = otherFlows
+	l.SumFlow()
+	otherFlow := l.Flows[len(l.Flows)-1]
+	otherFlow.Name = "其他"
+	newFlows = append(newFlows, otherFlow)
+
+	l.Flows = newFlows
 }
 
 // 添加一个汇总 Flow
@@ -191,4 +214,24 @@ func (p *Pie) SerieNameRatio(unit string) {
 	for i := range p.Series {
 		p.Series[i].Name = fmt.Sprintf("%s  %.2f %s  %.2f%%", p.Series[i].Name, p.Series[i].Value, unit, p.Series[i].Value/sum*100)
 	}
+}
+
+func (p *Pie) AddOther(cdnOtherGB int) string {
+	// 小于这个值聚合为其他
+	min := p.End.Sub(p.Begin).Hours() / 24 / 1024 * float64(cdnOtherGB)
+	otherNames := ""
+	newSeries := make([]PieSerie, 0)
+	otherPieSerie := PieSerie{Name: "其他"}
+
+	for _, e := range p.Series {
+		if e.Value < min {
+			otherNames += " " + e.Name
+			otherPieSerie.Value += e.Value
+		} else {
+			newSeries = append(newSeries, e)
+		}
+	}
+	newSeries = append(newSeries, otherPieSerie)
+	p.Series = newSeries
+	return otherNames
 }

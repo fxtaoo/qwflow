@@ -22,15 +22,22 @@
     <a href="/cdn?month=3">三个月</a>
     <br>
     <br>
-    自定义日期
+    <strong>将 cdn 流量日均少于 {{ .CdnOtherGB }}GB 的域名聚合为其他</strong>
+    <br>
+    <br>
+    自定义查询
     <form action="/cdn">
         <label>
-            开始
+            开始日期
             <input type="date" name="begen" />
         </label>
         <label>
-            结束
+            结束日期
             <input type="date" name="end" />
+        </label>
+        <label>
+            聚合筛选值（GB）
+            <input type="text" name="cdnOtherGB">
         </label>
         <button>查询</button>
     </form>
@@ -56,7 +63,7 @@
     lineStack(qiniuWangsulineStack, 'qiniu-wangsu-line-stack', "七牛网宿汇总 {{ .Name }} cdn 带宽（单元：Mbps）")
 
     let qiniuWangsuPie = JSON.parse("{{ json .QiniuWangsuCdnPie }}")
-    pie(qiniuWangsuPie, "qiniu-wangsu-pie", "七牛网宿汇总 {{ .Name }} cdn 流量（单元：GB）")
+    pie(qiniuWangsuPie, "qiniu-wangsu-pie", "七牛网宿汇总 {{ .Name }} cdn 流量（单元：TB）")
 
 
     // 七牛
@@ -64,14 +71,14 @@
     lineStack(qiniulineStack, 'qiniu-line-stack', "七牛 {{ .Name }} cdn 带宽（单元：Mbps）")
 
     let qiniuPie = JSON.parse("{{ json .QiniuCdnPie }}")
-    pie(qiniuPie, "qiniu-pie", "七牛 {{ .Name }} cdn 流量（单元：GB）")
+    pie(qiniuPie, "qiniu-pie", "七牛 {{ .Name }} cdn 流量（单元：TB）")
 
     // 网宿
     let wangsulineStack = JSON.parse("{{ json .WangsuCdnLineStack }}")
     lineStack(wangsulineStack, 'wangsu-line-stack', "网宿 {{ .Name }} cdn 带宽（单元：Mbps）")
 
     let wangsuPie = JSON.parse("{{ json .WangsuCdnPie }}")
-    pie(wangsuPie, "wangsu-pie", "网宿 {{ .Name }} cdn 流量（单元：GB）")
+    pie(wangsuPie, "wangsu-pie", "网宿 {{ .Name }} cdn 流量（单元：TB）")
 </script>
 
 </html>

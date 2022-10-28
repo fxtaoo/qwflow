@@ -18,6 +18,8 @@ type WebValue struct {
 	End   time.Time
 	Name  string
 
+	CdnOtherGB int
+
 	QiniuLiveLineStack      *echarts.LineStack
 	QiniuLiveLineStackFlows *echarts.LineStackFlows
 
@@ -140,28 +142,42 @@ func (v *WebValue) QWLiveInit(conf *conf.Conf) error {
 
 func (v *WebValue) QWCdnInit(conf *conf.Conf) error {
 	// 饼图
-	webValuePie := func(pie, pieflows *echarts.Pie, sql string, unit string) {
+	webValuePie := func(pie, pieflows *echarts.Pie, sql string, unit string) string {
 		pieflows.Sql = sql
 		pieflows.Begin = v.Begin
 		pieflows.End = v.End
 		pieflows.Series = make([]echarts.PieSerie, 0)
 
 		pieflows.Read(conf.Mysql)
+		otherNames := pieflows.AddOther(v.CdnOtherGB)
 		tmp, _ := json.Marshal(pieflows)
 
 		_ = json.Unmarshal(tmp, pie)
 		pie.SerieNameRatio(unit)
+
+		return otherNames
 	}
 
 	// 折线图
-	webValueLineStack := func(linetackflows *echarts.LineStackFlows, sql string) *echarts.LineStack {
+	webValueLineStack := func(linetackflows *echarts.LineStackFlows, sql string, otherNames string) *echarts.LineStack {
 		linetackflows.Sql = sql
 		linetackflows.Begin = v.Begin
 		linetackflows.End = v.End
 		linetackflows.Read(conf.Mysql)
+		linetackflows.AddOther(otherNames)
 		linetackflows.SumFlow()
 		return linetackflows.ConvertLineStack()
 	}
+
+	// 七牛CDN 饼图
+	v.QiniuCdnPie = new(echarts.Pie)
+	v.QiniuCdnPieFlows = new(echarts.Pie)
+	otherNames := webValuePie(
+		v.QiniuCdnPie,
+		v.QiniuCdnPieFlows,
+		"SELECT domain,ROUND(SUM(bytesum)/POWER(1024,4),5) AS sum FROM QiniuCdnsFlow WHERE date >= ? AND date < ? GROUP BY domain HAVING sum >0.001",
+		"TB",
+	)
 
 	// 七牛 CDN 折线图
 	v.QiniuCdnLineStack = new(echarts.LineStack)
@@ -169,16 +185,17 @@ func (v *WebValue) QWCdnInit(conf *conf.Conf) error {
 	v.QiniuCdnLineStack = webValueLineStack(
 		v.QiniuCdnLineStackFlows,
 		"SELECT domain,JSON_OBJECTAGG(date,ROUND(bandwidthmax/1024/1024,0)) FROM QiniuCdnsFlow WHERE date >= ? AND date < ? GROUP BY domain HAVING SUM(bytesum)/POWER(1024,3) >1",
+		otherNames,
 	)
 
-	// 七牛CDN 饼图
-	v.QiniuCdnPie = new(echarts.Pie)
-	v.QiniuCdnPieFlows = new(echarts.Pie)
-	webValuePie(
-		v.QiniuCdnPie,
-		v.QiniuCdnPieFlows,
-		"SELECT domain,ROUND(SUM(bytesum)/POWER(1024,3),2) AS sum FROM QiniuCdnsFlow WHERE date >= ? AND date < ? GROUP BY domain HAVING sum >1",
-		"GB",
+	// 网宿 cdn 饼图
+	v.WangsuCdnPie = new(echarts.Pie)
+	v.WangsuCdnPieFlows = new(echarts.Pie)
+	otherNames = webValuePie(
+		v.WangsuCdnPie,
+		v.WangsuCdnPieFlows,
+		"SELECT channel,SUM(totalFlow)/1024 AS total FROM WangsuCdnFlow WHERE date >= ? AND date < ? GROUP BY channel HAVING total >0.001",
+		"TB",
 	)
 
 	// 网宿 Cdn 折线图
@@ -187,27 +204,8 @@ func (v *WebValue) QWCdnInit(conf *conf.Conf) error {
 	v.WangsuCdnLineStack = webValueLineStack(
 		v.WangsuCdnLineStackFlows,
 		"SELECT channel,JSON_OBJECTAGG(date,peakValue) FROM WangsuCdnFlow WHERE date >= ? AND date < ? AND totalFlow > 1 GROUP BY channel",
+		otherNames,
 	)
-
-	// cdn 饼图
-	v.WangsuCdnPie = new(echarts.Pie)
-	v.WangsuCdnPieFlows = new(echarts.Pie)
-	webValuePie(
-		v.WangsuCdnPie,
-		v.WangsuCdnPieFlows,
-		"SELECT channel,SUM(totalFlow) AS total FROM WangsuCdnFlow WHERE date >= ? AND date < ? GROUP BY channel HAVING total >1",
-		"GB",
-	)
-
-	// 汇总折线图
-	v.QiniuWangsuCdnLineStack = new(echarts.LineStack)
-	v.QiniuCdnLineStackFlows.SeriesNamePrefix("七牛")
-	v.WangsuCdnLineStackFlows.SeriesNamePrefix("网宿")
-	v.QiniuCdnLineStackFlows.Flows = append(
-		v.QiniuCdnLineStackFlows.Flows,
-		v.WangsuCdnLineStackFlows.Flows...,
-	)
-	v.QiniuWangsuCdnLineStack = v.QiniuCdnLineStackFlows.ConvertLineStack()
 
 	// 汇总饼图
 	v.QiniuWangsuCdnPie = new(echarts.Pie)
@@ -221,7 +219,17 @@ func (v *WebValue) QWCdnInit(conf *conf.Conf) error {
 		v.QiniuWangsuCdnPie.Series,
 		v.WangsuCdnPieFlows.Series...,
 	)
-	v.QiniuWangsuCdnPie.SerieNameRatio("GB")
+	v.QiniuWangsuCdnPie.SerieNameRatio("TB")
+
+	// 汇总折线图
+	v.QiniuWangsuCdnLineStack = new(echarts.LineStack)
+	v.QiniuCdnLineStackFlows.SeriesNamePrefix("七牛")
+	v.WangsuCdnLineStackFlows.SeriesNamePrefix("网宿")
+	v.QiniuCdnLineStackFlows.Flows = append(
+		v.QiniuCdnLineStackFlows.Flows,
+		v.WangsuCdnLineStackFlows.Flows...,
+	)
+	v.QiniuWangsuCdnLineStack = v.QiniuCdnLineStackFlows.ConvertLineStack()
 
 	return nil
 }
@@ -260,6 +268,10 @@ func (v *WebValue) DateSelect(ctx *gin.Context) {
 		)
 	}
 
+	// cdn 聚合筛选值
+	if ctx.Query("cdnOtherGB") != "" {
+		v.CdnOtherGB, _ = strconv.Atoi(ctx.Query("cdnOtherGB"))
+	}
 }
 
 // web 页面相关
@@ -299,6 +311,8 @@ func Start() {
 
 	r.GET("/cdn", func(ctx *gin.Context) {
 		webValue := new(WebValue)
+		webValue.CdnOtherGB = conf.CdnOtherGB
+
 		webValue.DateSelect(ctx)
 
 		webValue.QWCdnInit(&conf)
