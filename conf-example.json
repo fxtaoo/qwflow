@@ -24,7 +24,8 @@
         "admin": "123456"
     },
     "alerts": {
-        "growthNum": 1.3,
+        "cdnGrowthWarnNum": 3,
+        "liveGrowthWarnNum": 1.5,
         "mail": [
             ""
         ],
