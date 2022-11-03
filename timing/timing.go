@@ -23,6 +23,9 @@ func Start() {
 		if err != nil {
 			log.Fatal(err)
 		}
+		
+		// 数据库初始化
+		conf.Mysql.Init()
 		defer conf.Mysql.DB.Close()
 
 		now := time.Now()

@@ -283,7 +283,6 @@ func Start() {
 		// todo log 处理
 		log.Fatal(err)
 	}
-	defer conf.Mysql.DB.Close()
 
 	r := gin.Default()
 
@@ -301,6 +300,10 @@ func Start() {
 	r.Static("/template", "template/")
 	r.LoadHTMLGlob("template/*.html")
 	r.GET("/live", func(ctx *gin.Context) {
+		// 数据库初始化
+		conf.Mysql.Init()
+		defer conf.Mysql.DB.Close()
+
 		webValue := new(WebValue)
 		webValue.DateSelect(ctx)
 
@@ -310,6 +313,10 @@ func Start() {
 	})
 
 	r.GET("/cdn", func(ctx *gin.Context) {
+		// 数据库初始化
+		conf.Mysql.Init()
+		defer conf.Mysql.DB.Close()
+
 		webValue := new(WebValue)
 		webValue.CdnOtherGB = conf.CdnOtherGB
 

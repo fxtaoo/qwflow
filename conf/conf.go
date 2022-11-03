@@ -30,9 +30,6 @@ func (c *Conf) Init() error {
 	if err != nil {
 		return err
 	}
-
-	// 数据库初始化
-	c.Mysql.Init()
 	// 七牛初始化
 	c.Qiniu.Init()
 	// 网宿初始化
