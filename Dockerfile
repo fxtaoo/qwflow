@@ -8,7 +8,7 @@ RUN set -eux; \
     && unzip qwflow.zip \
     && cd qwflow-master  \
     && go mod tidy \
-    && go build -o qwflow .
+    && CGO_ENABLED=0 go build -a -ldflags '-extldflags "-static"' -o qwflow .
 
 
 FROM alpine:latest
