@@ -11,12 +11,13 @@ RUN set -eux; \
     && go build -o qwflow .
 
 
-FROM debian:stable-slim
-
-ENV TZ="Asia/Shanghai"
+FROM alpine:latest
 
 RUN set -eux; \
-    apt update && apt install -y ca-certificates
+    apk add ca-certificates tzdata \
+    && cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
+    && echo "Asia/Shanghai" > /etc/timezone \
+    && apk del tzdata
 
 WORKDIR /app
 
