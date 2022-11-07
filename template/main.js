@@ -72,7 +72,8 @@ function pie(v, divId, chartName) {
             left: 'center'
         },
         tooltip: {
-            trigger: 'item'
+            trigger: 'item',
+            formatter: "{a} {b}"
         },
         legend: {
             orient: 'vertical',

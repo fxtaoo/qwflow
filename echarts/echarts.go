@@ -212,7 +212,7 @@ func (p *Pie) SerieNameRatio(unit string) {
 	}
 
 	for i := range p.Series {
-		p.Series[i].Name = fmt.Sprintf("%s  %.2f %s  %.2f%%", p.Series[i].Name, p.Series[i].Value, unit, p.Series[i].Value/sum*100)
+		p.Series[i].Name = fmt.Sprintf("%s　%.1f%%　%.1f%s", p.Series[i].Name, p.Series[i].Value/sum*100, p.Series[i].Value, unit)
 	}
 }
 
