@@ -21,6 +21,18 @@ type LineStackSerie struct {
 	Type  string `json:"type"`
 	Stack string `json:"stack"`
 	Data  []int  `json:"data"`
+	MarkPoint struct {
+		Data []MarkPointData `json:"data"`
+	} `json:"markPoint"`
+}
+
+type MarkPointData struct {
+	Type         string `json:"type"`
+	Name         string `json:"name"`
+	SymbolRotate int    `json:"symbolRotate"`
+	ItemStyle    struct {
+		Color string `json:"color"`
+	} `json:"itemStyle"`
 }
 
 // 数据库折线图相关数据
@@ -34,6 +46,7 @@ type LineStackFlows struct {
 type Flow struct {
 	Name        string         `json:"name"`
 	DateFlowMax map[string]int `json:"dateflowmax"`
+	SumTag      bool           // 集合值标注，true 为集合值
 }
 
 // 要传给 web 页面 echarts 饼图数据
@@ -54,6 +67,31 @@ func (l *LineStackSerie) Init() {
 	l.Type = "line"
 	l.Stack = fmt.Sprint(time.Now().UnixNano())
 	l.Data = make([]int, 0)
+}
+
+// 汇总数据添加标注
+func (l *LineStackSerie) AddLabel() {
+	// 最大最小
+	l.MarkPoint.Data = []MarkPointData{
+		{
+			Type: "max",
+			Name: "最大值",
+			ItemStyle: struct {
+				Color string "json:\"color\""
+			}{
+				Color: "rgba(244, 80, 80, 1)",
+			},
+		},
+		{
+			Type: "min",
+			Name: "最小值",
+			ItemStyle: struct {
+				Color string "json:\"color\""
+			}{
+				Color: "rgba(14, 191, 23, 1)",
+			},
+		},
+	}
 }
 
 // Flows[] Name 添加前缀
@@ -80,6 +118,7 @@ func (l *LineStackFlows) AddOther(otherNames string) {
 	l.SumFlow()
 	otherFlow := l.Flows[len(l.Flows)-1]
 	otherFlow.Name = "其他"
+	otherFlow.SumTag = false
 	newFlows = append(newFlows, otherFlow)
 
 	l.Flows = newFlows
@@ -103,6 +142,8 @@ func (l *LineStackFlows) SumFlow() {
 			sumFlow.DateFlowMax[v] += l.Flows[j].DateFlowMax[v]
 		}
 	}
+
+	sumFlow.SumTag = true
 
 	l.Flows = append(l.Flows, *sumFlow)
 
@@ -161,6 +202,12 @@ func (l *LineStackFlows) ConvertLineStack() *LineStack {
 		lineStackSerie := new(LineStackSerie)
 		lineStackSerie.Init()
 		lineStackSerie.Name = l.Flows[i].Name
+
+		// 是否为集合值
+		if l.Flows[i].SumTag {
+			lineStackSerie.AddLabel()
+		}
+
 		for _, date := range lineStack.XAxis {
 			lineStackSerie.Data = append(lineStackSerie.Data, l.Flows[i].DateFlowMax[date])
 		}
