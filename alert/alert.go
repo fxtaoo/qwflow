@@ -145,11 +145,11 @@ func (a *Alerts) SendMail() {
 	}
 	if content != "" {
 		// 发送邮件
-		mailInfo := mail.Mail{
+		m := mail.Mail{
 			Subject: subject,
 			Body:    content,
+			To:      a.Mail,
 		}
-
-		mail.SendEmailMP(&a.Stmp, &mailInfo, a.Mail)
+		m.Send(&a.Stmp)
 	}
 }

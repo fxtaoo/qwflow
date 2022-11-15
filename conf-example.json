@@ -32,8 +32,9 @@
         "smtp": {
             "host": "",
             "port": 465,
-            "user": "",
-            "userpw": ""
+            "address": "",
+            "passWd": "",
+            "name": ""
         }
     }
 }
