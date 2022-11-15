@@ -17,13 +17,16 @@ type LineStack struct {
 }
 
 type LineStackSerie struct {
-	Name  string `json:"name"`
-	Type  string `json:"type"`
-	Stack string `json:"stack"`
-	Data  []int  `json:"data"`
+	Name      string `json:"name"`
+	Type      string `json:"type"`
+	Stack     string `json:"stack"`
+	Data      []int  `json:"data"`
 	MarkPoint struct {
 		Data []MarkPointData `json:"data"`
 	} `json:"markPoint"`
+	MarkLine struct {
+		Data []MarkLineData `json:"data"`
+	} `json:"markLine"`
 }
 
 type MarkPointData struct {
@@ -33,6 +36,16 @@ type MarkPointData struct {
 	ItemStyle    struct {
 		Color string `json:"color"`
 	} `json:"itemStyle"`
+}
+
+type MarkLineData struct {
+	Type  string `json:"type"`
+	Name  string `json:"name"`
+	Label struct {
+		Formatter  string `json:"formatter"`
+		Position   string `json:"position"`
+		FontWeight string `json:"fontWeight"`
+	} `json:"label"`
 }
 
 // 数据库折线图相关数据
@@ -89,6 +102,23 @@ func (l *LineStackSerie) AddLabel() {
 				Color string "json:\"color\""
 			}{
 				Color: "rgba(14, 191, 23, 1)",
+			},
+		},
+	}
+
+	// 平均值
+	l.MarkLine.Data = []MarkLineData{
+		{
+			Type: "average",
+			Name: "平均值",
+			Label: struct {
+				Formatter  string "json:\"formatter\""
+				Position   string "json:\"position\""
+				FontWeight string `json:"fontWeight"`
+			}{
+				Formatter:  fmt.Sprintf("%s 平均值 {c} Mbps", l.Name),
+				Position:   "middle",
+				FontWeight: "bold",
 			},
 		},
 	}
