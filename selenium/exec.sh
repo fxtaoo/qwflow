@@ -1,6 +1,4 @@
 #!/usr/bin/env bash
-# 0 2 * * 1 bash /pd/dev/py/auto-check/exec.sh
-
 
 # 执行
 source /etc/profile
@@ -14,5 +12,8 @@ if [[ $dir_path == "." ]] ;then
 fi
 
 echo "" > ${dir_path}/log
-python3 ${dir_path}/selenium.py $1 $2 > ${dir_path}/log 2>&1 \
+
+rm -rf ${dir_path}/img/*
+
+python3 ${dir_path}/img.py $1 $2 > ${dir_path}/log 2>&1 \
 && docker stop selenium
