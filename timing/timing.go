@@ -23,7 +23,7 @@ func Start() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		
+
 		// 数据库初始化
 		conf.Mysql.Init()
 		defer conf.Mysql.DB.Close()
@@ -42,6 +42,11 @@ func Start() {
 			log.Fatal(err)
 		}
 		conf.Alerts.SendMail()
+
+		// 周一发送图片流量报表
+		if now.Weekday() == time.Monday && conf.ChartMail.Switch {
+			conf.ChartMail.SendMail()
+		}
 	})
 	c.Start()
 

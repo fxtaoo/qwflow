@@ -1,0 +1,17 @@
+version: '3'
+services:
+  qwflow:
+    image: fxtaoo/qwflow:latest
+    container_name: qwflow
+    restart: always
+    network_mode: host
+    volumes:
+      - ./conf.json:/app/conf.json
+      - ./img/img
+  selenium:
+    image: selenium/standalone-firefox:104.0
+    container_name: selenium
+    restart: unless-stopped
+    volumes:
+      - ./img:/home/seluser/Downloads
+    network_mode: host

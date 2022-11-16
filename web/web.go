@@ -18,7 +18,8 @@ type WebValue struct {
 	End   time.Time
 	Name  string
 
-	CdnOtherGB int
+	CdnOtherGB  int
+	DownloadImg bool
 
 	QiniuLiveLineStack      *echarts.LineStack
 	QiniuLiveLineStackFlows *echarts.LineStackFlows
@@ -235,11 +236,11 @@ func (v *WebValue) QWCdnInit(conf *conf.Conf) error {
 }
 
 func (v *WebValue) DateSelect(ctx *gin.Context) {
-	v.Name = "1 月"
+	v.Name = "1 个月"
 	month := 1
 	if ctx.Query("month") != "" {
 		month, _ = strconv.Atoi(ctx.Query("month"))
-		v.Name = fmt.Sprintf("%d 月", month)
+		v.Name = fmt.Sprintf("%d 个月", month)
 	}
 
 	day := 0
@@ -271,6 +272,11 @@ func (v *WebValue) DateSelect(ctx *gin.Context) {
 	// cdn 聚合筛选值
 	if ctx.Query("cdnOtherGB") != "" {
 		v.CdnOtherGB, _ = strconv.Atoi(ctx.Query("cdnOtherGB"))
+	}
+
+	// 是否下载图片
+	if ctx.Query("downloadImg") == "true" {
+		v.DownloadImg = true
 	}
 }
 

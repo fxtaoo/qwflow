@@ -15,3 +15,5 @@
 # vendor/
 
 conf.json
+selenium/img
+selenium/log

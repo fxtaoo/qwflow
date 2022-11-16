@@ -36,5 +36,20 @@
             "passWd": "",
             "name": ""
         }
+    },
+    "chartMail": {
+        "switch": true,
+        "smtp": {
+            "host": "",
+            "port": 465,
+            "address": "",
+            "passWd": "",
+            "name": ""
+        },
+        "mail": [
+            ""
+        ],
+        "bodyStart": "",
+        "imgDirPath": "/img"
     }
 }

@@ -1,7 +1,7 @@
 
 
 // 折线图
-function lineStack(v, divId, chartName) {
+function lineStack(v, divId, chartName, downloadImg, prefix) {
     var div = document.getElementById(divId);
     var myChart = echarts.init(div, null, {
         renderer: 'canvas',
@@ -52,10 +52,20 @@ function lineStack(v, divId, chartName) {
     }
 
     window.addEventListener('resize', myChart.resize);
+    setTimeout(() => {
+        dataUrl = myChart.getDataURL();
+        imgUrl = myChart.getDataURL({
+            pixelRatio: 2,
+            backgroundColor: '#fff'
+        });
+        if (downloadImg == "true") {
+            saveImg(imgUrl, prefix + "-" + divId)
+        }
+    }, 1000);
 }
 
 // 饼图
-function pie(v, divId, chartName) {
+function pie(v, divId, chartName, downloadImg, prefix) {
     var dom = document.getElementById(divId);
     var myChart = echarts.init(dom, null, {
         renderer: 'canvas',
@@ -101,4 +111,21 @@ function pie(v, divId, chartName) {
     }
 
     window.addEventListener('resize', myChart.resize);
+    setTimeout(() => {
+        dataUrl = myChart.getDataURL();
+        imgUrl = myChart.getDataURL({
+            pixelRatio: 2,
+            backgroundColor: '#fff'
+        });
+        if (downloadImg == "true") {
+            saveImg(imgUrl, prefix + "-" + divId)
+        }
+    }, 1000);
+}
+
+function saveImg(imgUrl, divId) {
+    const a = document.createElement('a')
+    a.href = imgUrl
+    a.setAttribute('download', divId)
+    a.click()
 }

@@ -47,6 +47,7 @@ services:
 - [x] 流量日环比增幅超过设定值邮件告警
 - [x] 折线图汇总显示最大最小
 - [x] 折线图汇总显示平均线
+- [x] 每周一发送图片邮件报表，外部依赖 selenium 访问 selenium/standalone-firefox 生成图片图片文件 [详情](selenium/README.md)
 
 ## 效果图
 

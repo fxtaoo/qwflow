@@ -51,27 +51,61 @@
 </body>
 
 <script>
-    // 七牛网宿汇总
-    let qiniuWangsulineStack = JSON.parse("{{ json .QiniuWangsuLiveLineStack }}")
-    lineStack(qiniuWangsulineStack, 'qiniu-wangsu-line-stack', "七牛网宿汇总 {{ .Name }} 直播带宽（单元：Mbps）")
+    // 下载图片前缀
+    url = window.location.search;
+    dm = url.substring(url.lastIndexOf('&') + 1, url.lastIndexOf('&') + 2);
+    num = url.substring(url.lastIndexOf('=') + 1, url.length);
+    imgPrefix = "live-" + dm + num
 
-    let qiniuWangsuPie = JSON.parse("{{ json .QiniuWangsuLivePie }}")
-    pie(qiniuWangsuPie, "qiniu-wangsu-pie", "七牛网宿汇总 {{ .Name }} 直播流量（单元：TB）")
+    // 七牛网宿汇总
+    let qiniuWangsulineStack = JSON.parse("{{ json .QiniuWangsuLiveLineStack }}");
+    lineStack(
+        qiniuWangsulineStack,
+        'qiniu-wangsu-line-stack',
+        "七牛网宿汇总 {{ .Name }} 直播带宽（单元：Mbps）",
+        "{{ .DownloadImg }}",
+        imgPrefix,
+    );
+
+    let qiniuWangsuPie = JSON.parse("{{ json .QiniuWangsuLivePie }}");
+    pie(
+        qiniuWangsuPie,
+        "qiniu-wangsu-pie",
+        "七牛网宿汇总 {{ .Name }} 直播流量（单元：TB）",
+        "{{ .DownloadImg }}",
+        imgPrefix,
+    );
 
 
     // 七牛
-    let qiniulineStack = JSON.parse("{{ json .QiniuLiveLineStack }}")
-    lineStack(qiniulineStack, 'qiniu-line-stack', "七牛 {{ .Name }} 直播带宽（单元：Mbps）")
+    let qiniulineStack = JSON.parse("{{ json .QiniuLiveLineStack }}");
+    lineStack(
+        qiniulineStack,
+        'qiniu-line-stack',
+        "七牛 {{ .Name }} 直播带宽（单元：Mbps）"
+    );
 
-    let qiniuPie = JSON.parse("{{ json .QiniuLivePie }}")
-    pie(qiniuPie, "qiniu-pie", "七牛 {{ .Name }} 直播流量（单元：TB）")
+    let qiniuPie = JSON.parse("{{ json .QiniuLivePie }}");
+    pie(
+        qiniuPie,
+        "qiniu-pie",
+        "七牛 {{ .Name }} 直播流量（单元：TB）"
+    );
 
     // 网宿
-    let wangsulineStack = JSON.parse("{{ json .WangsuLiveLineStack }}")
-    lineStack(wangsulineStack, 'wangsu-line-stack', "网宿 {{ .Name }} 直播带宽（单元：Mbps）")
+    let wangsulineStack = JSON.parse("{{ json .WangsuLiveLineStack }}");
+    lineStack(
+        wangsulineStack,
+        'wangsu-line-stack',
+        "网宿 {{ .Name }} 直播带宽（单元：Mbps）"
+    );
 
-    let wangsuPie = JSON.parse("{{ json .WangsuLivePie }}")
-    pie(wangsuPie, "wangsu-pie", "网宿 {{ .Name }} 直播流量（单元：TB）")
+    let wangsuPie = JSON.parse("{{ json .WangsuLivePie }}");
+    pie(
+        wangsuPie,
+        "wangsu-pie",
+        "网宿 {{ .Name }} 直播流量（单元：TB）"
+    );
 </script>
 
 </html>

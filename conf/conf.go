@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"os"
 	"qwflow/alert"
+	"qwflow/chartmail"
 	"qwflow/mysql"
 	"qwflow/qiniu"
 	"qwflow/wangsu"
@@ -12,12 +13,13 @@ import (
 )
 
 type Conf struct {
-	Mysql      mysql.Mysql   `json:"mysql"`
-	Qiniu      qiniu.Qiniu   `json:"qiniu"`
-	Wangsu     wangsu.WangSu `json:"wangsu"`
-	Accounts   gin.Accounts  `json:"accounts"`
-	Alerts     alert.Alerts  `json:"alerts"`
-	CdnOtherGB int           `json:"cdnOtherGB"`
+	Mysql      mysql.Mysql         `json:"mysql"`
+	Qiniu      qiniu.Qiniu         `json:"qiniu"`
+	Wangsu     wangsu.WangSu       `json:"wangsu"`
+	Accounts   gin.Accounts        `json:"accounts"`
+	Alerts     alert.Alerts        `json:"alerts"`
+	ChartMail  chartmail.ChartMail `json:"chartMail"`
+	CdnOtherGB int                 `json:"cdnOtherGB"`
 }
 
 func (c *Conf) Init() error {
@@ -36,6 +38,8 @@ func (c *Conf) Init() error {
 	c.Wangsu.Init()
 	// 流量日环比增幅超过设定值邮件告警
 	c.Alerts.Init()
+	// 图片报表邮件发送
+	c.ChartMail.Init()
 
 	return nil
 }
