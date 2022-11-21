@@ -27,6 +27,7 @@ type LineStackSerie struct {
 	MarkLine struct {
 		Data []MarkLineData `json:"data"`
 	} `json:"markLine"`
+	Smooth bool `json:"smooth"`
 }
 
 type MarkPointData struct {
@@ -80,6 +81,7 @@ func (l *LineStackSerie) Init() {
 	l.Type = "line"
 	l.Stack = fmt.Sprint(time.Now().UnixNano())
 	l.Data = make([]int, 0)
+	l.Smooth = true
 }
 
 // 汇总数据添加标注
