@@ -14,6 +14,8 @@ driver = webdriver.Remote(
 )
 driver.delete_all_cookies()
 
+driver.set_window_size(1366, 768)
+
 
 user = sys.argv[1]
 pw = sys.argv[2]
@@ -22,9 +24,12 @@ sort = ["live", "cdn"]
 dm = ["day=7", "month=1", "month=3"]
 
 for s in iter(sort):
+    other = ""
+    if s == "cdn":
+        other = "cdnOtherGB=100"
     for d in iter(dm):
         driver.get(
-            f"http://{user}:{pw}@127.0.0.1:8174/{s}?downloadImg=true&{d}"
+            f"http://{user}:{pw}@127.0.0.1:8174/{s}?downloadImg=true&{other}&{d}"
         )
         time.sleep(2)
 

@@ -25,7 +25,11 @@ type LineStackSerie struct {
 		Data []MarkPointData `json:"data"`
 	} `json:"markPoint"`
 	MarkLine struct {
-		Data []MarkLineData `json:"data"`
+		Data      []MarkLineData `json:"data"`
+		LineStyle struct {
+			Width int    `json:"width"`
+			Type  string `json:"type"`
+		} `json:"lineStyle"`
 	} `json:"markLine"`
 	Smooth bool `json:"smooth"`
 }
@@ -103,7 +107,7 @@ func (l *LineStackSerie) AddLabel() {
 			ItemStyle: struct {
 				Color string "json:\"color\""
 			}{
-				Color: "rgba(14, 191, 23, 1)",
+				Color: "rgba(38, 135, 37, 1)",
 			},
 		},
 	}
@@ -124,6 +128,9 @@ func (l *LineStackSerie) AddLabel() {
 			},
 		},
 	}
+
+	l.MarkLine.LineStyle.Width = 2
+	l.MarkLine.LineStyle.Type = "dashed"
 }
 
 // Flows[] Name 添加前缀

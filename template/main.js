@@ -19,10 +19,14 @@ function lineStack(v, divId, chartName, downloadImg, prefix) {
             trigger: 'axis',
             confine: true
         },
+        textStyle: {
+            fontSize: 12,
+            fontWeight: "normal",
+        },
         legend: {
             data: v.legend,
             show: true,
-            top: "3%"
+            top: "5%"
         },
         grid: {
             left: '3%',
@@ -46,6 +50,10 @@ function lineStack(v, divId, chartName, downloadImg, prefix) {
         series: v.series
     };
 
+    if (downloadImg === "true") {
+        option.textStyle.fontSize = 18;
+        option.textStyle.fontWeight = "bold";
+    }
 
     if (option && typeof option === 'object') {
         myChart.setOption(option);
@@ -85,9 +93,14 @@ function pie(v, divId, chartName, downloadImg, prefix) {
             trigger: 'item',
             formatter: "{a} {b}"
         },
+        textStyle: {
+            fontSize: 12,
+            fontWeight: "normal",
+        },
         legend: {
             orient: 'vertical',
-            left: 'left'
+            left: 'left',
+            show: true,
         },
         series: [
             {
@@ -105,6 +118,12 @@ function pie(v, divId, chartName, downloadImg, prefix) {
             }
         ]
     };
+
+    if (downloadImg === "true") {
+        option.textStyle.fontSize = 18;
+        option.textStyle.fontWeight = "bold";
+        option.legend.show = false;
+    }
 
     if (option && typeof option === 'object') {
         myChart.setOption(option);
