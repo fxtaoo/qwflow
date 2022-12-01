@@ -90,14 +90,18 @@
     lineStack(
         qiniulineStack,
         'qiniu-line-stack',
-        "七牛 {{ .Name }} cdn 带宽（单元：Mbps）"
+        "七牛 {{ .Name }} cdn 带宽（单元：Mbps）",
+        "{{ .DownloadImg }}",
+        imgPrefix,
     )
 
     let qiniuPie = JSON.parse("{{ json .QiniuCdnPie }}")
     pie(
         qiniuPie,
         "qiniu-pie",
-        "七牛 {{ .Name }} cdn 流量（单元：TB）"
+        "七牛 {{ .Name }} cdn 流量（单元：TB）",
+        "{{ .DownloadImg }}",
+        imgPrefix,
     )
 
     // 网宿
@@ -105,13 +109,17 @@
     lineStack(
         wangsulineStack,
         'wangsu-line-stack',
-        "网宿 {{ .Name }} cdn 带宽（单元：Mbps）"
+        "网宿 {{ .Name }} cdn 带宽（单元：Mbps）",
+        "{{ .DownloadImg }}",
+        imgPrefix,
     )
 
     let wangsuPie = JSON.parse("{{ json .WangsuCdnPie }}")
     pie(
         wangsuPie,
-        "wangsu-pie", "网宿 {{ .Name }} cdn 流量（单元：TB）"
+        "wangsu-pie", "网宿 {{ .Name }} cdn 流量（单元：TB）",
+        "{{ .DownloadImg }}",
+        imgPrefix,
     )
 </script>
 

@@ -247,7 +247,16 @@ func (v *WebValue) DateSelect(ctx *gin.Context) {
 	if ctx.Query("day") != "" {
 		day, _ = strconv.Atoi(ctx.Query("day"))
 		month = 0
-		v.Name = "1 周"
+		if day%7 == 0 {
+			if day/7 == 2 {
+				v.Name = "半月"
+			} else {
+				v.Name = fmt.Sprintf("%d 周", day/7)
+			}
+		} else {
+			v.Name = fmt.Sprintf("%d 天", day)
+		}
+
 	}
 
 	v.End = time.Now()

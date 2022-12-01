@@ -45,7 +45,8 @@ func Start() {
 
 		// 周一发送图片流量报表
 		if now.Weekday() == time.Monday && conf.ChartMail.Switch {
-			conf.ChartMail.SendMail()
+			conf.ChartMail.SendMail("live", "d14")
+			conf.ChartMail.SendMail("cdn", "d14")
 		}
 	})
 	c.Start()

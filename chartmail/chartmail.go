@@ -19,28 +19,28 @@ type ChartMail struct {
 	ImgDirPath string          `json:"imgDirPath"`
 }
 
-func (c *ChartMail) SendMail() []error {
+func (c *ChartMail) SendMail(sort, dayNum string) []error {
 
 	m := mail.Mail{
-		Subject: "七牛网宿直播 cdn 流量带宽报表",
+		Subject: fmt.Sprintf("七牛网宿 %s 带宽流量报表", sort),
 		To:      c.Mail,
 	}
 
-	sort := []string{"live", "cdn"}
-	dm := []string{"d7", "m1", "m3"}
+	c.Body.WriteString(fmt.Sprintf("<br><h2>%s 相关</h2><br>", sort))
 
-	for _, v1 := range sort {
-		c.Body.WriteString(fmt.Sprintf("<br><h2>%s 相关</h2><br>", v1))
-		for _, v2 := range dm {
-			c.BodyAddImg(fmt.Sprintf("%s-%s-qiniu-wangsu-line-stack.png", v1, v2))
-			c.BodyAddImg(fmt.Sprintf("%s-%s-qiniu-wangsu-pie.png", v1, v2))
-		}
-	}
+	c.BodyAddImg(fmt.Sprintf("%s-%s-qiniu-wangsu-line-stack.png", sort, dayNum))
+	c.BodyAddImg(fmt.Sprintf("%s-%s-qiniu-wangsu-pie.png", sort, dayNum))
+
+	c.BodyAddImg(fmt.Sprintf("%s-%s-qiniu-line-stack.png", sort, dayNum))
+	c.BodyAddImg(fmt.Sprintf("%s-%s-qiniu-pie.png", sort, dayNum))
+
+	c.BodyAddImg(fmt.Sprintf("%s-%s-wangsu-line-stack.png", sort, dayNum))
+	c.BodyAddImg(fmt.Sprintf("%s-%s-wangsu-pie.png", sort, dayNum))
 
 	// 说明放至末尾
 	c.Body.WriteString(c.BodyEnd)
-
 	m.Body = c.Body.String()
+	defer c.Body.Reset()
 
 	err := m.SendAlone(&c.Stmp)
 	if err != nil {

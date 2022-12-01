@@ -21,7 +21,7 @@ user = sys.argv[1]
 pw = sys.argv[2]
 
 sort = ["live", "cdn"]
-dm = ["day=7", "month=1", "month=3"]
+dm = ["day=14"]
 
 for s in iter(sort):
     other = ""
