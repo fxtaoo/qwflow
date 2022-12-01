@@ -49,7 +49,7 @@
         "mail": [
             ""
         ],
-        "bodyStart": "",
+        "bodyEnd": "",
         "imgDirPath": "/img"
     }
 }

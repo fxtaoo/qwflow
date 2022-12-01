@@ -38,8 +38,6 @@ func (c *Conf) Init() error {
 	c.Wangsu.Init()
 	// 流量日环比增幅超过设定值邮件告警
 	c.Alerts.Init()
-	// 图片报表邮件发送
-	c.ChartMail.Init()
 
 	return nil
 }

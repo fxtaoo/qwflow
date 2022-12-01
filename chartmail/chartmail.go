@@ -14,13 +14,9 @@ type ChartMail struct {
 	Switch     bool            `json:"switch"`
 	Stmp       mail.Smtp       `json:"smtp"`
 	Mail       []string        `json:"mail"`
-	BodyStart  string          `json:"bodyStart"`
+	BodyEnd    string          `json:"bodyEnd"`
 	Body       strings.Builder `json:"-"`
 	ImgDirPath string          `json:"imgDirPath"`
-}
-
-func (c *ChartMail) Init() {
-	c.Body.WriteString(c.BodyStart)
 }
 
 func (c *ChartMail) SendMail() []error {
@@ -40,6 +36,9 @@ func (c *ChartMail) SendMail() []error {
 			c.BodyAddImg(fmt.Sprintf("%s-%s-qiniu-wangsu-pie.png", v1, v2))
 		}
 	}
+
+	// 说明放至末尾
+	c.Body.WriteString(c.BodyEnd)
 
 	m.Body = c.Body.String()
 
