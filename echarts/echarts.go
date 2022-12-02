@@ -64,6 +64,7 @@ type LineStackFlows struct {
 type Flow struct {
 	Name        string         `json:"name"`
 	DateFlowMax map[string]int `json:"dateflowmax"`
+	Avg         float64        `json:"-"`
 	SumTag      bool           // 集合值标注，true 为集合值
 }
 
@@ -154,13 +155,31 @@ func (l *LineStackFlows) AddOther(otherNames string) {
 	}
 
 	l.Flows = otherFlows
+
 	l.SumFlow()
-	otherFlow := l.Flows[len(l.Flows)-1]
+
+	otherFlow := l.Flows[0]
 	otherFlow.Name = "其他"
 	otherFlow.SumTag = false
-	newFlows = append(newFlows, otherFlow)
 
-	l.Flows = newFlows
+	// 其他插入合适位置
+	i := 0
+	for ; i < len(newFlows); i++ {
+		if otherFlow.Avg > newFlows[i].Avg {
+			break
+		}
+	}
+
+	il := len(newFlows)
+	l.Flows = make([]Flow, 0)
+
+	if i == il {
+		l.Flows = append(newFlows, otherFlow)
+	} else {
+		l.Flows = append(l.Flows, newFlows[0:i]...)
+		l.Flows = append(l.Flows, otherFlow)
+		l.Flows = append(l.Flows, newFlows[i:il]...)
+	}
 }
 
 // 添加一个汇总 Flow
@@ -179,13 +198,18 @@ func (l *LineStackFlows) SumFlow() {
 	for _, v := range dateSlice {
 		for j := range l.Flows {
 			sumFlow.DateFlowMax[v] += l.Flows[j].DateFlowMax[v]
+			sumFlow.Avg += l.Flows[j].Avg
 		}
 	}
 
+	sumFlow.Avg = sumFlow.Avg / float64(len(sumFlow.DateFlowMax))
+
 	sumFlow.SumTag = true
 
-	l.Flows = append(l.Flows, *sumFlow)
-
+	tmp := make([]Flow, 0)
+	tmp = append(tmp, *sumFlow)
+	tmp = append(tmp, l.Flows...)
+	l.Flows = tmp
 }
 
 // 从数据库读数据
@@ -207,7 +231,7 @@ func (l *LineStackFlows) Read(m mysql.Mysql) error {
 		flowTmp.DateFlowMax = make(map[string]int)
 		dateFlowMaxStr := ""
 
-		err := rows.Scan(&flowTmp.Name, &dateFlowMaxStr)
+		err := rows.Scan(&flowTmp.Name, &dateFlowMaxStr, &flowTmp.Avg)
 		if err != nil {
 			return err
 		}
@@ -254,6 +278,40 @@ func (l *LineStackFlows) ConvertLineStack() *LineStack {
 	}
 
 	return lineStack
+}
+
+// 有序添加，降序
+// l1 l2 已经是降序
+func (l *LineStackFlows) OrderAdd(l1, l2 *LineStackFlows) {
+	l1l := len(l1.Flows)
+	l2l := len(l2.Flows)
+	ll := l1l + l2l
+
+	l1i := 0
+	l2i := 0
+
+	for i := 0; i < ll; i++ {
+		if l1i == l1l {
+			l.Flows = append(l.Flows, l2.Flows[l2i])
+			l2i++
+			continue
+		}
+
+		if l2i == l2l {
+			l.Flows = append(l.Flows, l1.Flows[l1i])
+			l1i++
+			continue
+		}
+
+		if l1.Flows[l1i].Avg > l2.Flows[l2i].Avg {
+			l.Flows = append(l.Flows, l1.Flows[l1i])
+			l1i++
+		} else {
+			l.Flows = append(l.Flows, l2.Flows[l2i])
+			l2i++
+		}
+	}
+
 }
 
 // Flows[] Name 添加前缀

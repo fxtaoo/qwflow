@@ -82,7 +82,7 @@ func (v *WebValue) QWLiveInit(conf *conf.Conf) error {
 	v.QiniuLiveLineStackFlows = new(echarts.LineStackFlows)
 	v.QiniuLiveLineStack = webValueLineStack(
 		v.QiniuLiveLineStackFlows,
-		"SELECT hub,JSON_OBJECTAGG(date, JSON_EXTRACT(updown,'$.max')) FROM QiniuHubsFlow WHERE date >= ? AND date < ? GROUP BY hub HAVING SUM(JSON_EXTRACT(updown,'$.bytesum'))/POWER(1000,4)>0.1",
+		"SELECT hub,JSON_OBJECTAGG(date, JSON_EXTRACT(updown,'$.max')),AVG(JSON_EXTRACT(updown,'$.max')) AS avg FROM QiniuHubsFlow WHERE date >= ? AND date < ? GROUP BY hub HAVING avg > 1 ORDER BY avg DESC",
 	)
 
 	// 七牛直播饼图
@@ -100,7 +100,7 @@ func (v *WebValue) QWLiveInit(conf *conf.Conf) error {
 	v.WangsuLiveLineStackFlows = new(echarts.LineStackFlows)
 	v.WangsuLiveLineStack = webValueLineStack(
 		v.WangsuLiveLineStackFlows,
-		"SELECT channel,JSON_OBJECTAGG(date,peakValue) FROM WangsuLiveFlow WHERE date >= ? AND date < ? AND totalFlow/POWER(1024,2) > 0.1 GROUP BY channel",
+		"SELECT channel,JSON_OBJECTAGG(date,peakValue), AVG(peakValue) AS avg FROM WangsuLiveFlow WHERE date >= ? AND date < ? GROUP BY channel HAVING avg > 1 ORDER BY avg DESC",
 	)
 
 	// 网宿直播饼图
@@ -117,11 +117,12 @@ func (v *WebValue) QWLiveInit(conf *conf.Conf) error {
 	v.QiniuWangsuLiveLineStack = new(echarts.LineStack)
 	v.QiniuLiveLineStackFlows.SeriesNamePrefix("七牛")
 	v.WangsuLiveLineStackFlows.SeriesNamePrefix("网宿")
-	v.QiniuLiveLineStackFlows.Flows = append(
-		v.QiniuLiveLineStackFlows.Flows,
-		v.WangsuLiveLineStackFlows.Flows...,
-	)
-	v.QiniuWangsuLiveLineStack = v.QiniuLiveLineStackFlows.ConvertLineStack()
+
+	tmp := new(echarts.LineStackFlows)
+	tmp.Begin = v.Begin
+	tmp.End = v.End
+	tmp.OrderAdd(v.QiniuLiveLineStackFlows, v.WangsuLiveLineStackFlows)
+	v.QiniuWangsuLiveLineStack = tmp.ConvertLineStack()
 
 	// 汇总饼图
 	v.QiniuWangsuLivePie = new(echarts.Pie)
@@ -178,7 +179,7 @@ func (v *WebValue) QWCdnInit(conf *conf.Conf) error {
 	v.QiniuCdnLineStackFlows = new(echarts.LineStackFlows)
 	v.QiniuCdnLineStack = webValueLineStack(
 		v.QiniuCdnLineStackFlows,
-		"SELECT domain,JSON_OBJECTAGG(date,ROUND(bandwidthmax/1024/1024,0)) FROM QiniuCdnsFlow WHERE date >= ? AND date < ? GROUP BY domain HAVING SUM(bytesum)/POWER(1024,3) >1",
+		"SELECT domain,JSON_OBJECTAGG(date,ROUND(bandwidthmax/1024/1024,0)),AVG(ROUND(bandwidthmax/1024/1024,0)) AS avg FROM QiniuCdnsFlow WHERE date >= ? AND date < ? GROUP BY domain HAVING avg > 1 ORDER BY avg DESC",
 		otherNames,
 	)
 
@@ -197,7 +198,7 @@ func (v *WebValue) QWCdnInit(conf *conf.Conf) error {
 	v.WangsuCdnLineStackFlows = new(echarts.LineStackFlows)
 	v.WangsuCdnLineStack = webValueLineStack(
 		v.WangsuCdnLineStackFlows,
-		"SELECT channel,JSON_OBJECTAGG(date,peakValue) FROM WangsuCdnFlow WHERE date >= ? AND date < ? AND totalFlow > 1 GROUP BY channel",
+		"SELECT channel,JSON_OBJECTAGG(date,peakValue),AVG(peakValue) AS avg FROM WangsuCdnFlow WHERE date >= ? AND date < ? GROUP BY channel HAVING avg >1 ORDER BY avg DESC",
 		otherNames,
 	)
 
@@ -212,11 +213,12 @@ func (v *WebValue) QWCdnInit(conf *conf.Conf) error {
 	v.QiniuWangsuCdnLineStack = new(echarts.LineStack)
 	v.QiniuCdnLineStackFlows.SeriesNamePrefix("七牛")
 	v.WangsuCdnLineStackFlows.SeriesNamePrefix("网宿")
-	v.QiniuCdnLineStackFlows.Flows = append(
-		v.QiniuCdnLineStackFlows.Flows,
-		v.WangsuCdnLineStackFlows.Flows...,
-	)
-	v.QiniuWangsuCdnLineStack = v.QiniuCdnLineStackFlows.ConvertLineStack()
+
+	tmp := new(echarts.LineStackFlows)
+	tmp.Begin = v.Begin
+	tmp.End = v.End
+	tmp.OrderAdd(v.QiniuCdnLineStackFlows, v.WangsuCdnLineStackFlows)
+	v.QiniuWangsuCdnLineStack = tmp.ConvertLineStack()
 
 	return nil
 }
