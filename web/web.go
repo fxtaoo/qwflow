@@ -91,7 +91,7 @@ func (v *WebValue) QWLiveInit(conf *conf.Conf) error {
 	webValuePie(
 		v.QiniuLivePie,
 		v.QiniuLivePieFlows,
-		"SELECT hub,ROUND(SUM(JSON_EXTRACT(updown,'$.bytesum'))/POWER(1000,4),2) AS sumbyte FROM QiniuHubsFlow WHERE date >= ? AND date < ? GROUP BY hub HAVING sumbyte >1",
+		"SELECT hub,ROUND(SUM(JSON_EXTRACT(updown,'$.bytesum'))/POWER(1000,4),2) AS sumbyte FROM QiniuHubsFlow WHERE date >= ? AND date < ? GROUP BY hub HAVING sumbyte >1 ORDER BY sumbyte DESC",
 		"TB",
 	)
 
@@ -109,7 +109,7 @@ func (v *WebValue) QWLiveInit(conf *conf.Conf) error {
 	webValuePie(
 		v.WangsuLivePie,
 		v.WangsuLivePieFlows,
-		"SELECT channel,SUM(ROUND(totalFlow/POWER(1024,2),2)) AS total FROM WangsuLiveFlow WHERE date >= ? AND date < ? GROUP BY channel HAVING total >0.1",
+		"SELECT channel,SUM(ROUND(totalFlow/POWER(1024,2),2)) AS total FROM WangsuLiveFlow WHERE date >= ? AND date < ? GROUP BY channel HAVING total >0.1 ORDER BY total DESC",
 		"TB",
 	)
 
@@ -127,14 +127,7 @@ func (v *WebValue) QWLiveInit(conf *conf.Conf) error {
 	v.QiniuWangsuLivePie = new(echarts.Pie)
 	v.QiniuLivePieFlows.SeriesNamePrefix("七牛")
 	v.WangsuLivePieFlows.SeriesNamePrefix("网宿")
-	v.QiniuWangsuLivePie.Series = append(
-		v.QiniuWangsuLivePie.Series,
-		v.QiniuLivePieFlows.Series...,
-	)
-	v.QiniuWangsuLivePie.Series = append(
-		v.QiniuWangsuLivePie.Series,
-		v.WangsuLivePieFlows.Series...,
-	)
+	v.QiniuWangsuLivePie.OrderAdd(v.QiniuLivePieFlows, v.WangsuLivePieFlows)
 	v.QiniuWangsuLivePie.SerieNameRatio("TB")
 
 	return nil
@@ -176,7 +169,7 @@ func (v *WebValue) QWCdnInit(conf *conf.Conf) error {
 	otherNames := webValuePie(
 		v.QiniuCdnPie,
 		v.QiniuCdnPieFlows,
-		"SELECT domain,ROUND(SUM(bytesum)/POWER(1024,4),5) AS sum FROM QiniuCdnsFlow WHERE date >= ? AND date < ? GROUP BY domain HAVING sum >0.001",
+		"SELECT domain,ROUND(SUM(bytesum)/POWER(1024,4),5) AS sum FROM QiniuCdnsFlow WHERE date >= ? AND date < ? GROUP BY domain HAVING sum >0.001 ORDER BY sum DESC",
 		"TB",
 	)
 
@@ -195,7 +188,7 @@ func (v *WebValue) QWCdnInit(conf *conf.Conf) error {
 	otherNames = webValuePie(
 		v.WangsuCdnPie,
 		v.WangsuCdnPieFlows,
-		"SELECT channel,SUM(totalFlow)/1024 AS total FROM WangsuCdnFlow WHERE date >= ? AND date < ? GROUP BY channel HAVING total >0.001",
+		"SELECT channel,SUM(totalFlow)/1024 AS total FROM WangsuCdnFlow WHERE date >= ? AND date < ? GROUP BY channel HAVING total >0.001 ORDER BY total DESC",
 		"TB",
 	)
 
@@ -212,14 +205,7 @@ func (v *WebValue) QWCdnInit(conf *conf.Conf) error {
 	v.QiniuWangsuCdnPie = new(echarts.Pie)
 	v.QiniuCdnPieFlows.SeriesNamePrefix("七牛")
 	v.WangsuCdnPieFlows.SeriesNamePrefix("网宿")
-	v.QiniuWangsuCdnPie.Series = append(
-		v.QiniuWangsuCdnPie.Series,
-		v.QiniuCdnPieFlows.Series...,
-	)
-	v.QiniuWangsuCdnPie.Series = append(
-		v.QiniuWangsuCdnPie.Series,
-		v.WangsuCdnPieFlows.Series...,
-	)
+	v.QiniuWangsuCdnPie.OrderAdd(v.QiniuCdnPieFlows, v.WangsuCdnPieFlows)
 	v.QiniuWangsuCdnPie.SerieNameRatio("TB")
 
 	// 汇总折线图

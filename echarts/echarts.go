@@ -317,7 +317,60 @@ func (p *Pie) AddOther(cdnOtherGB int) string {
 			newSeries = append(newSeries, e)
 		}
 	}
-	newSeries = append(newSeries, otherPieSerie)
-	p.Series = newSeries
+
+	// newSeries 已经是降序
+	i := 0
+	l := len(newSeries)
+
+	for ; i < l; i++ {
+		if otherPieSerie.Value > newSeries[i].Value {
+			break
+		}
+	}
+
+	p.Series = make([]PieSerie, 0)
+	if i == l {
+		p.Series = append(newSeries, otherPieSerie)
+	} else {
+		p.Series = append(p.Series, newSeries[0:i]...)
+		p.Series = append(p.Series, otherPieSerie)
+		p.Series = append(p.Series, newSeries[i:l]...)
+	}
+
 	return otherNames
+}
+
+// 有序添加，降序
+// p1 p2 已经是降序
+func (p *Pie) OrderAdd(p1, p2 *Pie) {
+
+	p1l := len(p1.Series)
+	p2l := len(p2.Series)
+
+	pl := p1l + p2l
+
+	p1i := 0
+	p2i := 0
+
+	for i := 0; i < pl; i++ {
+		if p1i == p1l {
+			p.Series = append(p.Series, p2.Series[p2i])
+			p2i++
+			continue
+		}
+
+		if p2i == p2l {
+			p.Series = append(p.Series, p1.Series[p1i])
+			p1i++
+			continue
+		}
+
+		if p1.Series[p1i].Value > p2.Series[p2i].Value {
+			p.Series = append(p.Series, p1.Series[p1i])
+			p1i++
+		} else {
+			p.Series = append(p.Series, p2.Series[p2i])
+			p2i++
+		}
+	}
 }
