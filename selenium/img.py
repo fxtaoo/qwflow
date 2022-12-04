@@ -28,6 +28,7 @@ for s in iter(sort):
     if s == "cdn":
         other = "cdnOtherGB=100"
     for d in iter(dm):
+        time.sleep(1)
         driver.get(
             f"http://{user}:{pw}@127.0.0.1:8174/{s}?downloadImg=true&{other}&{d}"
         )
