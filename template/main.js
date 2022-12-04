@@ -13,24 +13,27 @@ function lineStack(v, divId, chartName, downloadImg, prefix) {
 
     option = {
         title: {
-            text: chartName
+            text: chartName,
+            subtext: '',
+            left: 'center'
         },
         tooltip: {
             trigger: 'axis',
             confine: true
         },
         textStyle: {
-            fontSize: 12,
+            fontSize: 14,
             fontWeight: "normal",
         },
         legend: {
             data: v.legend,
             show: true,
-            top: "5%"
+            top: "6%"
         },
         grid: {
+            top: "18%",
             left: '3%',
-            right: '4%',
+            right: '3%',
             bottom: '3%',
             containLabel: true
         },
@@ -50,10 +53,10 @@ function lineStack(v, divId, chartName, downloadImg, prefix) {
         series: v.series
     };
 
-    if (downloadImg === "true") {
-        option.textStyle.fontSize = 18;
-        option.textStyle.fontWeight = "bold";
-    }
+    // if (downloadImg === "true") {
+    //     option.textStyle.fontSize = 18;
+    //     option.textStyle.fontWeight = "bold";
+    // }
 
     if (option && typeof option === 'object') {
         myChart.setOption(option);
@@ -94,13 +97,12 @@ function pie(v, divId, chartName, downloadImg, prefix) {
             formatter: "{a} {b}"
         },
         textStyle: {
-            fontSize: 12,
+            fontSize: 14,
             fontWeight: "normal",
         },
         legend: {
-            orient: 'vertical',
-            left: 'left',
-            show: true,
+            top: '5%',
+            left: 'center'
         },
         series: [
             {
@@ -119,11 +121,11 @@ function pie(v, divId, chartName, downloadImg, prefix) {
         ]
     };
 
-    if (downloadImg === "true") {
-        option.textStyle.fontSize = 18;
-        option.textStyle.fontWeight = "bold";
-        option.legend.show = false;
-    }
+    // if (downloadImg === "true") {
+    //     option.textStyle.fontSize = 18;
+    //     option.textStyle.fontWeight = "bold";
+    //     option.legend.show = false;
+    // }
 
     if (option && typeof option === 'object') {
         myChart.setOption(option);
