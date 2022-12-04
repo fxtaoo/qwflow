@@ -360,9 +360,9 @@ func (p *Pie) SerieNameRatio(unit string) {
 	}
 }
 
-func (p *Pie) AddOther(cdnOtherGB int) string {
+func (p *Pie) AddOther(otherGB int) string {
 	// 小于这个值聚合为其他
-	min := p.End.Sub(p.Begin).Hours() / 24 / 1024 * float64(cdnOtherGB)
+	min := p.End.Sub(p.Begin).Hours() / 24 / 1000 * float64(otherGB)
 	otherNames := ""
 	newSeries := make([]PieSerie, 0)
 	otherPieSerie := PieSerie{Name: "其他"}

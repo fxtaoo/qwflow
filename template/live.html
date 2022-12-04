@@ -22,6 +22,9 @@
     <a href="/live?month=3">三个月</a>
     <br>
     <br>
+    <strong>将 live 流量日均少于 {{ .LiveOtherTB }}TB 的直播聚合为其他</strong>
+    <br>
+    <br>
     自定义日期
     <form action="/live">
         <label>
@@ -31,6 +34,10 @@
         <label>
             结束
             <input type="date" name="end" />
+        </label>
+        <label>
+            聚合筛选值（TB）
+            <input type="text" name="liveOtherTB">
         </label>
         <button>查询</button>
     </form>

@@ -51,5 +51,7 @@
         ],
         "bodyEnd": "",
         "imgDirPath": "/img"
-    }
+    },
+    "cdnOtherGB": 50,
+    "liveOtherTB": 1
 }

@@ -19,6 +19,7 @@ type WebValue struct {
 	Name  string
 
 	CdnOtherGB  int
+	LiveOtherTB float64
 	DownloadImg bool
 
 	QiniuLiveLineStack      *echarts.LineStack
@@ -54,44 +55,60 @@ type WebValue struct {
 
 func (v *WebValue) QWLiveInit(conf *conf.Conf) error {
 	// 饼图
-	webValuePie := func(pie, pieflows *echarts.Pie, sql string, unit string) {
+	webValuePie := func(pie, pieflows *echarts.Pie, sql string, unit string) string {
 		pieflows.Sql = sql
 		pieflows.Begin = v.Begin
 		pieflows.End = v.End
 		pieflows.Series = make([]echarts.PieSerie, 0)
 
 		pieflows.Read(conf.Mysql)
+		// (p *Pie) AddOther(otherGB int)
+		otherNames := pieflows.AddOther(int(v.LiveOtherTB * 1000))
 		tmp, _ := json.Marshal(pieflows)
 
 		_ = json.Unmarshal(tmp, pie)
 		pie.SerieNameRatio(unit)
+
+		return otherNames
 	}
 
 	// 折线图
-	webValueLineStack := func(linetackflows *echarts.LineStackFlows, sql string) *echarts.LineStack {
+	webValueLineStack := func(linetackflows *echarts.LineStackFlows, sql string, otherNames string) *echarts.LineStack {
 		linetackflows.Sql = sql
 		linetackflows.Begin = v.Begin
 		linetackflows.End = v.End
 		linetackflows.Read(conf.Mysql)
+		linetackflows.AddOther(otherNames)
 		linetackflows.SumFlow()
 		return linetackflows.ConvertLineStack()
 	}
+
+	// 七牛直播饼图
+	v.QiniuLivePie = new(echarts.Pie)
+	v.QiniuLivePieFlows = new(echarts.Pie)
+	otherNames := webValuePie(
+		v.QiniuLivePie,
+		v.QiniuLivePieFlows,
+		"SELECT hub,ROUND(SUM(JSON_EXTRACT(updown,'$.bytesum'))/POWER(1000,4),2) AS sumbyte FROM QiniuHubsFlow WHERE date >= ? AND date < ? GROUP BY hub HAVING sumbyte > 0.1 ORDER BY sumbyte DESC",
+		"TB",
+	)
 
 	// 七牛直播折线图
 	v.QiniuLiveLineStack = new(echarts.LineStack)
 	v.QiniuLiveLineStackFlows = new(echarts.LineStackFlows)
 	v.QiniuLiveLineStack = webValueLineStack(
 		v.QiniuLiveLineStackFlows,
-		"SELECT hub,JSON_OBJECTAGG(date, JSON_EXTRACT(updown,'$.max')),AVG(JSON_EXTRACT(updown,'$.max')) AS avg FROM QiniuHubsFlow WHERE date >= ? AND date < ? GROUP BY hub HAVING avg > 1 ORDER BY avg DESC",
+		"SELECT hub,JSON_OBJECTAGG(date, JSON_EXTRACT(updown,'$.max')),AVG(JSON_EXTRACT(updown,'$.max')) AS avg FROM QiniuHubsFlow WHERE date >= ? AND date < ? GROUP BY hub HAVING avg > 0.1 ORDER BY avg DESC",
+		otherNames,
 	)
 
-	// 七牛直播饼图
-	v.QiniuLivePie = new(echarts.Pie)
-	v.QiniuLivePieFlows = new(echarts.Pie)
-	webValuePie(
-		v.QiniuLivePie,
-		v.QiniuLivePieFlows,
-		"SELECT hub,ROUND(SUM(JSON_EXTRACT(updown,'$.bytesum'))/POWER(1000,4),2) AS sumbyte FROM QiniuHubsFlow WHERE date >= ? AND date < ? GROUP BY hub HAVING sumbyte >1 ORDER BY sumbyte DESC",
+	// 网宿直播饼图
+	v.WangsuLivePie = new(echarts.Pie)
+	v.WangsuLivePieFlows = new(echarts.Pie)
+	otherNames = webValuePie(
+		v.WangsuLivePie,
+		v.WangsuLivePieFlows,
+		"SELECT channel,SUM(ROUND(totalFlow/POWER(1024,2),2)) AS total FROM WangsuLiveFlow WHERE date >= ? AND date < ? GROUP BY channel HAVING total >0.1 ORDER BY total DESC",
 		"TB",
 	)
 
@@ -101,16 +118,7 @@ func (v *WebValue) QWLiveInit(conf *conf.Conf) error {
 	v.WangsuLiveLineStack = webValueLineStack(
 		v.WangsuLiveLineStackFlows,
 		"SELECT channel,JSON_OBJECTAGG(date,peakValue), AVG(peakValue) AS avg FROM WangsuLiveFlow WHERE date >= ? AND date < ? GROUP BY channel HAVING avg > 1 ORDER BY avg DESC",
-	)
-
-	// 网宿直播饼图
-	v.WangsuLivePie = new(echarts.Pie)
-	v.WangsuLivePieFlows = new(echarts.Pie)
-	webValuePie(
-		v.WangsuLivePie,
-		v.WangsuLivePieFlows,
-		"SELECT channel,SUM(ROUND(totalFlow/POWER(1024,2),2)) AS total FROM WangsuLiveFlow WHERE date >= ? AND date < ? GROUP BY channel HAVING total >0.1 ORDER BY total DESC",
-		"TB",
+		otherNames,
 	)
 
 	// 汇总折线图
@@ -271,6 +279,11 @@ func (v *WebValue) DateSelect(ctx *gin.Context) {
 		v.CdnOtherGB, _ = strconv.Atoi(ctx.Query("cdnOtherGB"))
 	}
 
+	// live 聚合筛选值
+	if ctx.Query("liveOtherTB") != "" {
+		v.LiveOtherTB, _ = strconv.ParseFloat(ctx.Query("liveOtherTB"), 64)
+	}
+
 	// 是否下载图片
 	if ctx.Query("downloadImg") == "true" {
 		v.DownloadImg = true
@@ -308,6 +321,7 @@ func Start() {
 		defer conf.Mysql.DB.Close()
 
 		webValue := new(WebValue)
+		webValue.LiveOtherTB = conf.LiveOtherTB
 		webValue.DateSelect(ctx)
 
 		webValue.QWLiveInit(&conf)
