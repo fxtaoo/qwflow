@@ -4,26 +4,23 @@ import (
 	"log"
 	"qwflow/conf"
 	"qwflow/wangsu"
-	"sync"
 	"time"
 
 	"github.com/robfig/cron/v3"
 )
 
 func Start() {
+	var conf conf.Conf
+	// 初始化数据
+	err := conf.Init()
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	// 定时运行
-	wg := &sync.WaitGroup{}
-	wg.Add(1)
-
 	c := cron.New()
+	// 获取昨天数据
 	c.AddFunc("0 3 * * *", func() {
-		var conf conf.Conf
-		// 初始化数据
-		err := conf.Init()
-		if err != nil {
-			log.Fatal(err)
-		}
-
 		// 数据库初始化
 		conf.Mysql.Init()
 		defer conf.Mysql.DB.Close()
@@ -42,19 +39,18 @@ func Start() {
 			log.Fatal(err)
 		}
 		conf.Alerts.SendMail()
-
-		// 周一发送图片流量报表
-		if now.Weekday() == time.Monday && conf.ChartMail.Switch {
+	})
+	// 周一发送图片流量报表
+	// 图片需要提前生成好
+	c.AddFunc("0 5 * * 1", func() {
+		if conf.ChartMail.Switch {
 			conf.ChartMail.SendMail("live", "d14")
 			conf.ChartMail.SendMail("cdn", "d14")
 		}
 	})
+
 	c.Start()
-
-	wg.Wait()
-
-	// YesterdayFlow()
-
+	select {}
 }
 
 func YesterdayFlow(conf *conf.Conf, end time.Time) error {
