@@ -14,13 +14,20 @@ if [ "$1" == '' ] || [ "$2" == '' ] ;then
     exit 1
 fi
 
-docker restart selenium
-sleep 5
+img_num=0
 
-echo "" > ${dir_path}/log
+while (( img_num < 13 )) ;do
+    docker restart selenium
+    sleep 10
 
-rm -rf ${dir_path}/img/*
+    echo "" > ${dir_path}/log
+    rm -rf ${dir_path}/img/*
 
-python3 ${dir_path}/img.py $1 $2 > ${dir_path}/log 2>&1
+    python3 ${dir_path}/img.py $1 $2 > ${dir_path}/log 2>&1
 
-docker stop selenium
+    docker stop selenium
+    sleep 10
+
+    img_num=$(ls -l ${dir_path}/img | wc -l)
+done
+
