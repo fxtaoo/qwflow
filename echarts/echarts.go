@@ -142,7 +142,17 @@ func (l *LineStackFlows) SeriesNamePrefix(p string) {
 }
 
 // 将较小的聚合成一个其他
-func (l *LineStackFlows) AddOther(otherNames string) {
+func (l *LineStackFlows) AddOther(otherNames string, pie *Pie) {
+
+	// 饼图，折线图数据筛选尺度不一致，导致饼图没有，折线图有
+	// 以饼图为准
+	// 数据以排序过，相比饼图多出数据并入其他
+	lenLine := len(l.Flows)
+	num := lenLine - len(pie.Series)
+	for i := 1; i <= num; i++ {
+		otherNames = fmt.Sprintf("%s %s", otherNames, l.Flows[lenLine-i].Name)
+	}
+
 	newFlows := make([]Flow, 0)
 	otherFlows := make([]Flow, 0)
 

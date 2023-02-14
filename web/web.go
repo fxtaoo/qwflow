@@ -73,16 +73,15 @@ func (v *WebValue) QWLiveInit(conf *conf.Conf) error {
 	}
 
 	// 折线图
-	webValueLineStack := func(linetackflows *echarts.LineStackFlows, sql string, otherNames string) *echarts.LineStack {
+	webValueLineStack := func(linetackflows *echarts.LineStackFlows, sql string, otherNames string, pie *echarts.Pie) *echarts.LineStack {
 		linetackflows.Sql = sql
 		linetackflows.Begin = v.Begin
 		linetackflows.End = v.End
 		linetackflows.Read(conf.Mysql)
-		linetackflows.AddOther(otherNames)
+		linetackflows.AddOther(otherNames, pie)
 		linetackflows.SumFlow()
 		return linetackflows.ConvertLineStack()
 	}
-
 	// 七牛直播饼图
 	v.QiniuLivePie = new(echarts.Pie)
 	v.QiniuLivePieFlows = new(echarts.Pie)
@@ -100,6 +99,7 @@ func (v *WebValue) QWLiveInit(conf *conf.Conf) error {
 		v.QiniuLiveLineStackFlows,
 		"SELECT hub,JSON_OBJECTAGG(date, JSON_EXTRACT(updown,'$.max')),AVG(JSON_EXTRACT(updown,'$.max')) AS avg FROM QiniuHubsFlow WHERE date >= ? AND date < ? GROUP BY hub HAVING avg > 0.1 ORDER BY avg DESC",
 		otherNames,
+		v.QiniuLivePie,
 	)
 
 	// 网宿直播饼图
@@ -119,6 +119,7 @@ func (v *WebValue) QWLiveInit(conf *conf.Conf) error {
 		v.WangsuLiveLineStackFlows,
 		"SELECT channel,JSON_OBJECTAGG(date,peakValue), AVG(peakValue) AS avg FROM WangsuLiveFlow WHERE date >= ? AND date < ? GROUP BY channel HAVING avg > 1 ORDER BY avg DESC",
 		otherNames,
+		v.WangsuLivePie,
 	)
 
 	// 汇总折线图
@@ -162,12 +163,12 @@ func (v *WebValue) QWCdnInit(conf *conf.Conf) error {
 	}
 
 	// 折线图
-	webValueLineStack := func(linetackflows *echarts.LineStackFlows, sql string, otherNames string) *echarts.LineStack {
+	webValueLineStack := func(linetackflows *echarts.LineStackFlows, sql string, otherNames string, pie *echarts.Pie) *echarts.LineStack {
 		linetackflows.Sql = sql
 		linetackflows.Begin = v.Begin
 		linetackflows.End = v.End
 		linetackflows.Read(conf.Mysql)
-		linetackflows.AddOther(otherNames)
+		linetackflows.AddOther(otherNames, pie)
 		linetackflows.SumFlow()
 		return linetackflows.ConvertLineStack()
 	}
@@ -189,6 +190,7 @@ func (v *WebValue) QWCdnInit(conf *conf.Conf) error {
 		v.QiniuCdnLineStackFlows,
 		"SELECT domain,JSON_OBJECTAGG(date,ROUND(bandwidthmax/1024/1024,0)),AVG(ROUND(bandwidthmax/1024/1024,0)) AS avg FROM QiniuCdnsFlow WHERE date >= ? AND date < ? GROUP BY domain HAVING avg > 1 ORDER BY avg DESC",
 		otherNames,
+		v.QiniuCdnPie,
 	)
 
 	// 网宿 cdn 饼图
@@ -208,6 +210,7 @@ func (v *WebValue) QWCdnInit(conf *conf.Conf) error {
 		v.WangsuCdnLineStackFlows,
 		"SELECT channel,JSON_OBJECTAGG(date,peakValue),AVG(peakValue) AS avg FROM WangsuCdnFlow WHERE date >= ? AND date < ? GROUP BY channel HAVING avg >1 ORDER BY avg DESC",
 		otherNames,
+		v.WangsuCdnPie,
 	)
 
 	// 汇总饼图
