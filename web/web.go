@@ -7,6 +7,7 @@ import (
 	"log"
 	"qwflow/conf"
 	"qwflow/echarts"
+	"qwflow/timing"
 	"strconv"
 	"time"
 
@@ -293,6 +294,28 @@ func (v *WebValue) DateSelect(ctx *gin.Context) {
 	}
 }
 
+// 再一次获取数据
+func (v *WebValue) getDataAgainResult(ctx *gin.Context) error {
+	var conf conf.Conf
+	// 初始化数据
+	err := conf.Init()
+	if err != nil {
+		return err
+	}
+	// 数据库初始化
+	conf.Mysql.Init()
+	defer conf.Mysql.DB.Close()
+
+	bengin, _ := time.Parse("2006-01-02 -0700 MST", ctx.Query("date")+" +0800 CST")
+	end := bengin.AddDate(0, 0, 1)
+	err = timing.GetDayFlow(&conf, bengin, end, ctx.Query("sort"), ctx.Request.URL.Path[1:], true)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // web 页面相关
 func Start() {
 	var conf conf.Conf
@@ -318,6 +341,36 @@ func Start() {
 	})
 	r.Static("/template", "template/")
 	r.LoadHTMLGlob("template/*.html")
+
+	getDataAgainResult := make(chan string)
+
+	getDataAgain := func(webValue *WebValue, ctx *gin.Context) {
+		if ctx.Query("sort") != "" {
+			quit := make(chan int)
+			go func() {
+				// get updateresult 失败避免锁死
+				for {
+					select {
+					case <-quit:
+						return
+					case <-time.After(time.Second * 3):
+						<-getDataAgainResult
+					}
+				}
+
+			}()
+			err := webValue.getDataAgainResult(ctx)
+			if err != nil {
+				getDataAgainResult <- fmt.Sprintf("获取失败：%s", err.Error())
+			} else {
+				getDataAgainResult <- "获取成功"
+			}
+			quit <- 0
+			// 延迟避免不出现弹窗
+			<-time.After(time.Millisecond * 1500)
+		}
+	}
+
 	r.GET("/live", func(ctx *gin.Context) {
 		// 数据库初始化
 		conf.Mysql.Init()
@@ -325,8 +378,8 @@ func Start() {
 
 		webValue := new(WebValue)
 		webValue.LiveOtherTB = conf.LiveOtherTB
+		getDataAgain(webValue, ctx)
 		webValue.DateSelect(ctx)
-
 		webValue.QWLiveInit(&conf)
 
 		ctx.HTML(200, "live.html", webValue)
@@ -339,12 +392,30 @@ func Start() {
 
 		webValue := new(WebValue)
 		webValue.CdnOtherGB = conf.CdnOtherGB
-
+		getDataAgain(webValue, ctx)
 		webValue.DateSelect(ctx)
 
 		webValue.QWCdnInit(&conf)
 
 		ctx.HTML(200, "cdn.html", webValue)
+	})
+
+	r.GET("/getDataAgainResult", func(ctx *gin.Context) {
+		quit := make(chan int)
+		go func() {
+			// get updateresult 失败避免锁死
+			for {
+				select {
+				case <-quit:
+					return
+				case <-time.After(time.Second * 6):
+					getDataAgainResult <- "获取失败"
+				}
+			}
+
+		}()
+		ctx.String(200, "%s", <-getDataAgainResult)
+		quit <- 0
 	})
 	r.Run(":8174")
 }

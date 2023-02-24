@@ -50,6 +50,7 @@ services:
 - [x] 每周一发送图片邮件报表，外部依赖 selenium 访问 selenium/standalone-firefox 生成图片图片文件 [详情](selenium/README.md)
 - [x] 饼图顺时针流量降序
 - [x] 折线图自上而下带宽降序
+- [x] 指定特定天获取数据
 
 ## 效果图
 

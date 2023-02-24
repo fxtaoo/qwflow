@@ -42,6 +42,18 @@
         <button>查询</button>
     </form>
     <br>
+    数据有误再一次获取数据
+    <form action="/cdn">
+        <select name="sort">
+            <option value="qiniu">七牛</option>
+            <option value="wangsu">网宿</option>
+        </select>
+        <label>
+            日期
+            <input type="date" name="date" />
+        </label>
+        <button onclick="getDataAgain()">获取</button>
+    </form>
     <br>
 
     <!-- 七牛网宿汇总 -->

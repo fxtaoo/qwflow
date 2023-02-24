@@ -150,3 +150,17 @@ function saveImg(imgUrl, divId) {
     a.setAttribute('download', divId)
     a.click()
 }
+
+
+// 再一次获取数据
+async function getDataAgain() {
+    url = window.location.href.split('/')[0]
+    const response = await fetch(url + '/getDataAgainResult')
+    console.log(response)
+    if (response.ok) {
+        const result = await response.text()
+        alert(result)
+    } else {
+        alert('获取失败')
+    }
+}
