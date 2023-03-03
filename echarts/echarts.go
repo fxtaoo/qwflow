@@ -31,7 +31,8 @@ type LineStackSerie struct {
 			Type  string `json:"type"`
 		} `json:"lineStyle"`
 	} `json:"markLine"`
-	Smooth bool `json:"smooth"`
+	Smooth     bool `json:"smooth"`
+	ShowSymbol bool `json:"showSymbol"`
 }
 
 type MarkPointData struct {
@@ -82,11 +83,12 @@ type PieSerie struct {
 	Name  string  `json:"name"`
 }
 
-func (l *LineStackSerie) Init() {
+func (l *LineStackSerie) Init(stack string) {
 	l.Type = "line"
-	l.Stack = fmt.Sprint(time.Now().UnixNano())
+	l.Stack = stack
 	l.Data = make([]int, 0)
 	l.Smooth = true
+	l.ShowSymbol = false
 }
 
 // 汇总数据添加标注
@@ -273,7 +275,7 @@ func (l *LineStackFlows) ConvertLineStack() *LineStack {
 	for i := range l.Flows {
 		lineStack.Legend = append(lineStack.Legend, l.Flows[i].Name)
 		lineStackSerie := new(LineStackSerie)
-		lineStackSerie.Init()
+		lineStackSerie.Init(fmt.Sprint(i))
 		lineStackSerie.Name = l.Flows[i].Name
 
 		// 是否为集合值
