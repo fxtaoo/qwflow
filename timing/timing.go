@@ -45,7 +45,7 @@ func Start() {
 	})
 	// 周一发送图片流量报表
 	// 图片需要提前生成好
-	c.AddFunc("0 5 * * 1", func() {
+	c.AddFunc("0 9 * * *", func() {
 		var conf conf.Conf
 		// 初始化数据
 		err := conf.Init()
@@ -54,8 +54,8 @@ func Start() {
 		}
 
 		if conf.ChartMail.Switch {
-			conf.ChartMail.SendMail("live", "d14")
-			conf.ChartMail.SendMail("cdn", "d14")
+			conf.ChartMail.SendMail("live", conf.ChartMail.ImgName)
+			conf.ChartMail.SendMail("cdn", conf.ChartMail.ImgName)
 		}
 	})
 

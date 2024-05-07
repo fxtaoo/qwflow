@@ -17,9 +17,10 @@ type ChartMail struct {
 	BodyEnd    string          `json:"bodyEnd"`
 	Body       strings.Builder `json:"-"`
 	ImgDirPath string          `json:"imgDirPath"`
+	ImgName    string          `json:"imgName"`
 }
 
-func (c *ChartMail) SendMail(sort, dayNum string) []error {
+func (c *ChartMail) SendMail(sort, imgName string) []error {
 
 	m := mail.Mail{
 		Subject: fmt.Sprintf("七牛网宿 %s 带宽流量报表", sort),
@@ -28,14 +29,14 @@ func (c *ChartMail) SendMail(sort, dayNum string) []error {
 
 	c.Body.WriteString(fmt.Sprintf("<br><h2>%s 相关</h2><br>", sort))
 
-	c.BodyAddImg(fmt.Sprintf("%s-%s-qiniu-wangsu-line-stack.png", sort, dayNum))
-	c.BodyAddImg(fmt.Sprintf("%s-%s-qiniu-wangsu-pie.png", sort, dayNum))
+	c.BodyAddImg(fmt.Sprintf("%s-%s-qiniu-wangsu-line-stack.png", sort, imgName))
+	c.BodyAddImg(fmt.Sprintf("%s-%s-qiniu-wangsu-pie.png", sort, imgName))
 
-	c.BodyAddImg(fmt.Sprintf("%s-%s-qiniu-line-stack.png", sort, dayNum))
-	c.BodyAddImg(fmt.Sprintf("%s-%s-qiniu-pie.png", sort, dayNum))
+	c.BodyAddImg(fmt.Sprintf("%s-%s-qiniu-line-stack.png", sort, imgName))
+	c.BodyAddImg(fmt.Sprintf("%s-%s-qiniu-pie.png", sort, imgName))
 
-	c.BodyAddImg(fmt.Sprintf("%s-%s-wangsu-line-stack.png", sort, dayNum))
-	c.BodyAddImg(fmt.Sprintf("%s-%s-wangsu-pie.png", sort, dayNum))
+	c.BodyAddImg(fmt.Sprintf("%s-%s-wangsu-line-stack.png", sort, imgName))
+	c.BodyAddImg(fmt.Sprintf("%s-%s-wangsu-pie.png", sort, imgName))
 
 	// 说明放至末尾
 	c.Body.WriteString(c.BodyEnd)
@@ -52,6 +53,7 @@ func (c *ChartMail) SendMail(sort, dayNum string) []error {
 
 // 图片转 base64
 func (c *ChartMail) BodyAddImg(fileName string) {
+
 	filePath := path.Join(c.ImgDirPath, fileName)
 	fileByte, _ := os.ReadFile(filePath)
 	src := base64.StdEncoding.EncodeToString(fileByte)
