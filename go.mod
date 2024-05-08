@@ -4,7 +4,7 @@ go 1.22
 
 require (
 	github.com/alibabacloud-go/tea v1.2.2
-	github.com/gin-gonic/gin v1.9.1
+	github.com/gin-gonic/gin v1.10.0
 	github.com/go-sql-driver/mysql v1.8.1
 	github.com/qiniu/go-sdk/v7 v7.20.1
 	github.com/robfig/cron/v3 v3.0.1
