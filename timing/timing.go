@@ -16,7 +16,7 @@ func Start() {
 	// 定时运行
 	c := cron.New()
 	// 获取昨天数据
-	c.AddFunc("0 3 * * *", func() {
+	c.AddFunc("0 8 * * *", func() {
 		var conf conf.Conf
 		// 初始化数据
 		err := conf.Init()
@@ -35,6 +35,19 @@ func Start() {
 		if err != nil {
 			log.Fatal(err)
 		}
+	})
+
+	// 流量日环比增幅超过设定值邮件告警
+	c.AddFunc("0 9 * * *", func() {
+		var conf conf.Conf
+		// 初始化数据
+		err := conf.Init()
+		if err != nil {
+			log.Fatal(err)
+		}
+		// 数据库初始化
+		conf.Mysql.Init()
+		defer conf.Mysql.DB.Close()
 
 		// 流量日环比增幅超过设定值邮件告警
 		err = conf.Alerts.Calc(&conf.Mysql)
@@ -43,6 +56,7 @@ func Start() {
 		}
 		conf.Alerts.SendMail()
 	})
+
 	// 周一发送图片流量报表
 	// 图片需要提前生成好
 	c.AddFunc("0 9 * * *", func() {
