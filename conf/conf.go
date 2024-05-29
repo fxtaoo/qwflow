@@ -21,6 +21,11 @@ type Conf struct {
 	ChartMail   chartmail.ChartMail `json:"chartMail"`
 	CdnOtherGB  int                 `json:"cdnOtherGB"`
 	LiveOtherTB float64             `json:"liveOtherTB"`
+	TimingCron  struct {
+		GetDayFlow string `json:"GetDayFlow"`
+		Alerts     string `json:"Alerts"`
+		ChartMail  string `json:"ChartMail"`
+	} `json:"TimingCron"`
 }
 
 func (c *Conf) Init() error {

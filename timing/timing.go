@@ -12,11 +12,17 @@ import (
 )
 
 func Start() {
+	var Conf conf.Conf
+	// 初始化数据
+	err := Conf.Init()
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	// 定时运行
 	c := cron.New()
 	// 获取昨天数据
-	c.AddFunc("0 8 * * *", func() {
+	c.AddFunc(Conf.TimingCron.GetDayFlow, func() {
 		var conf conf.Conf
 		// 初始化数据
 		err := conf.Init()
@@ -38,7 +44,7 @@ func Start() {
 	})
 
 	// 流量日环比增幅超过设定值邮件告警
-	c.AddFunc("0 9 * * *", func() {
+	c.AddFunc(Conf.TimingCron.Alerts, func() {
 		var conf conf.Conf
 		// 初始化数据
 		err := conf.Init()
@@ -59,7 +65,7 @@ func Start() {
 
 	// 周一发送图片流量报表
 	// 图片需要提前生成好
-	c.AddFunc("0 9 * * *", func() {
+	c.AddFunc(Conf.TimingCron.ChartMail, func() {
 		var conf conf.Conf
 		// 初始化数据
 		err := conf.Init()

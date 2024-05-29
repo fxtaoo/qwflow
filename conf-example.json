@@ -53,5 +53,10 @@
         "imgDirPath": "/img"
     },
     "cdnOtherGB": 50,
-    "liveOtherTB": 1
+    "liveOtherTB": 1,
+    "TimingCron": {
+        "GetDayFlow": "0 8 * * *",
+        "Alerts": "0 10 * * *",
+        "ChartMail": "0 10 * * *"
+    }
 }
